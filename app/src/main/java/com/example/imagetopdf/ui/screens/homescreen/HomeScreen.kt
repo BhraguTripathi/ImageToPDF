@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +36,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
@@ -54,51 +56,25 @@ fun HomeScreen(){
                 .navigationBarsPadding()
         ) {
 
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(
-                            text = "Home",
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary,
-                            style = MaterialTheme.typography.titleLarge
-                        ) },
-                        actions = {
-                            IconButton(onClick = {},
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .border(2.dp, Color.White, CircleShape)
-                            ) {
-                                Image(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Profile",
-                                    colorFilter = ColorFilter.tint(TextPrimary),
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                        },
+            /*-----------Top App Bar------------*/
 
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent
-                        ),
 
-                        modifier = Modifier.background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    BrandBlueLight,
-                                    BrandPurple
-                                )
-                            )
-                        )
-                    )
-                }
-            ) {
-                innerPadding ->{ }
-            }
+            /*----------Main Content----------*/
+            
+
+            /*-----------Bottom App Bar-----------*/
+            BottomBar()
 
         }
     }
+}
+
+
+
+fun HomeHeader(
+    onProfileClick: () -> Unit
+){
+
 }
 
 @Preview(showSystemUi = true)

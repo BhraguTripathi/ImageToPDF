@@ -8,7 +8,7 @@ val BrandBlueLight = Color(0xFF8894FF) //End of gradient
 
 //Functional Colors
 val AccentRed = Color(0xFFEB5757) // PDF Icons, Logout text, Delete actions
-val AppBackGround = Color(0xFFC9D7EA) // The light gray background behind the lists
+val AppBackGround = Color.Transparent // The light gray background behind the lists
 val CardSurface = Color(0xFFFFFFFF) // White for cards, list items, and bottom nav
 
 //Text Colors
