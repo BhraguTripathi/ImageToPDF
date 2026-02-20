@@ -34,14 +34,14 @@ import com.example.imagetopdf.ui.theme.BrandPurple
 @Composable
 fun TopBar(
     title: String,
-    buttonIcon: ImageVector,
+    buttonIcon: ImageVector?,
     onButtonClicked: () -> Unit
 ){
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
+            .height(100.dp)
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(
                 brush = Brush.verticalGradient(
@@ -52,7 +52,7 @@ fun TopBar(
                 )
             )
             .padding(horizontal = 24.dp)
-            .padding(top = 40.dp)
+            .padding(top = 25.dp)
     ){
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -67,19 +67,21 @@ fun TopBar(
                 fontWeight = FontWeight.Bold
             )
 
-            IconButton(
-                onClick = { },
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.2f)) // Semi-transparent white circle
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
-                    tint = Color.White,
-                    modifier = Modifier.size(30.dp)
-                )
+            if(buttonIcon != null) {
+                IconButton(
+                    onClick = onButtonClicked,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.2f)) // Semi-transparent white circle
+                ) {
+                    Icon(
+                        imageVector = buttonIcon,
+                        contentDescription = "Profile",
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
             }
         }
     }

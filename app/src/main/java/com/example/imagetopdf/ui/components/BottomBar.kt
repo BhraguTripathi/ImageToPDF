@@ -33,13 +33,13 @@ fun BottomBar(){
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(5.dp),
-        shadowElevation =  5.dp,
+        //shadowElevation =  2.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
+                .height(70.dp)
                 .padding(horizontal = 2.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
@@ -86,7 +86,7 @@ fun BottomBarItem(
             imageVector = icon,
             contentDescription = label,
             tint = color,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(30.dp)
         )
         Text(
             text = label,

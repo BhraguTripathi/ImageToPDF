@@ -3,7 +3,7 @@ package com.example.imagetopdf.ui.theme
 import androidx.compose.ui.graphics.Color
 
 //Brand Colors (Header Gradient & Buttons)
-val BrandPurple = Color(0xFF5D5FEF) // Start of gradient, Primary Buttons, Active Icon
+val BrandPurple = Color(0xFF4D4FC0) // Start of gradient, Primary Buttons, Active Icon
 val BrandBlueLight = Color(0xFF8894FF) //End of gradient
 
 //Functional Colors
