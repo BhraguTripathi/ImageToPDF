@@ -20,7 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CustomSearchBar() {
+fun CustomSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholderText: String = "Search"
+) {
 
     var searchQuery by remember {
         mutableStateOf("")
