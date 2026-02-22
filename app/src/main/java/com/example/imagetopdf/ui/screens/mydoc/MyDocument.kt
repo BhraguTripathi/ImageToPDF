@@ -78,7 +78,7 @@ fun MyDocumentScreen(){
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     items(dummyDocuments){
                     document ->
