@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -57,18 +58,18 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // 1. Navigation (For moving between Home, Settings, Account)
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.8.0")
 
     // 2. Extended Icons (For the specific icons like "Settings", "Person", "Edit")
     // The basic material library only has a few icons. This one has ALL of them.
-    implementation("androidx.compose.material:material-icons-extended:1.6.3")
+    implementation("androidx.compose.material:material-icons-extended")
 
     // 3. Image Loading (Coil)
     // You need this to load images from the user's gallery efficiently.
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     // 4. ViewModel (For managing your app's data/state)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // 5. PDF Viewer (Optional - for viewing the PDFs you create)
     // There isn't a native Compose PDF viewer yet, but this wraps the Android native one nicely.
