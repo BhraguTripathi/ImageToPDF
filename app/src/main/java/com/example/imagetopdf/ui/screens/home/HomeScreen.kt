@@ -29,7 +29,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.imagetopdf.R
+import com.example.imagetopdf.navigation.Screen
 import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.TopBar
@@ -39,9 +41,9 @@ import com.example.imagetopdf.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(){
-
-
+fun HomeScreen(
+    navController: NavController
+){
 
     GradientBackground {
         Column(
@@ -55,7 +57,9 @@ fun HomeScreen(){
             TopBar(
                 title = "Home",
                 buttonIcon = Icons.Filled.Person,
-                onButtonClicked = { /*TODO*/ }
+                onButtonClicked = {
+                    navController.navigate(Screen.Account.route)
+                }
             )
 
             /*----------Main Content----------*/
@@ -98,7 +102,9 @@ fun HomeScreen(){
 
                 // Button
                 Button(
-                    onClick = {  },
+                    onClick = {
+                        navController.navigate(Screen.BeforeConversion.route)
+                    },
                     modifier = Modifier
                         .width(350.dp)
                         .height(50.dp)
@@ -107,7 +113,7 @@ fun HomeScreen(){
                     shape = RoundedCornerShape(50)
                 ) {
                     Text(
-                        text = "Select Images",
+                        text = "Create New",
                         style = MaterialTheme.typography.labelLarge,
                         color = Color.White
                     )
@@ -117,15 +123,10 @@ fun HomeScreen(){
 
 
             /*-----------Bottom App Bar-----------*/
-            BottomBar()
+            BottomBar(
+                navController = navController
+            )
 
         }
     }
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun HomeScreenPreview(){
-    HomeScreen()
 }

@@ -40,7 +40,9 @@ import com.example.imagetopdf.ui.theme.TextSecondary
 
 
 @Composable
-fun OTPScreen(){
+fun OTPScreen(
+    onVerifyClick: () -> Unit
+){
 
     var otp by remember { mutableStateOf("") }
 
@@ -101,7 +103,7 @@ fun OTPScreen(){
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { /* Handle Verify Logic */ },
+                    onClick = { onVerifyClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -134,13 +136,5 @@ fun OTPScreen(){
                 )
             }
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun OTPScreenPreview(){
-    MaterialTheme {
-        OTPScreen()
     }
 }

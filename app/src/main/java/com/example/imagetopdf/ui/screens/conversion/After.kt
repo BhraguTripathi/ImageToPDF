@@ -2,6 +2,7 @@ package com.example.imagetopdf.ui.screens.conversion
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,14 +24,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,22 +45,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.imagetopdf.R
+import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
 
-// ─────────────────────────────────────────────
-// After Conversion Screen
-// ─────────────────────────────────────────────
 
 @Composable
-fun AfterConversionScreen() {
+fun AfterConversionScreen(
+
+    navController: NavController
+) {
 
     var selectedRating by remember { mutableIntStateOf(5) }
 
@@ -130,14 +129,15 @@ fun AfterConversionScreen() {
             }
 
             // ── Bottom Nav ───────────────────────────────────────
-            AfterScreenBottomBar()
+            // 2. We use YOUR perfectly designed BottomBar component here!
+            BottomBar(navController = navController)
         }
     }
 }
 
 
 // ─────────────────────────────────────────────
-// Success Header  (gradient + overlapping green circle)
+// Success Header
 // ─────────────────────────────────────────────
 
 @Composable
@@ -146,7 +146,6 @@ private fun SuccessHeader() {
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.TopCenter
     ) {
-        // Gradient banner
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -159,20 +158,19 @@ private fun SuccessHeader() {
                 )
         )
 
-        // Green check circle — overlaps the bottom of the banner
         Box(
             modifier = Modifier
-                .padding(top = 90.dp)            // pushes circle down to overlap edge
+                .padding(top = 90.dp)
                 .size(90.dp)
                 .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
-                .background(Color(0xFFDFF5E1)),  // light mint green
+                .background(Color(0xFFDFF5E1)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = "Success",
-                tint = Color(0xFF27AE60),         // solid green
+                tint = Color(0xFF27AE60),
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -200,7 +198,6 @@ private fun PdfSummaryCard() {
                 .padding(16.dp)
         ) {
 
-            // ── PDF file info row ─────────────────────────────
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(R.drawable.pdficon),
@@ -230,7 +227,6 @@ private fun PdfSummaryCard() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Image preview list ────────────────────────────
             ImagePreviewRow()
             Spacer(modifier = Modifier.height(12.dp))
             ImagePreviewRow()
@@ -241,7 +237,6 @@ private fun PdfSummaryCard() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Action buttons row ────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -270,27 +265,21 @@ private fun PdfSummaryCard() {
 }
 
 
-// ─────────────────────────────────────────────
-// Single image preview row  (thumbnail + placeholder lines)
-// ─────────────────────────────────────────────
-
 @Composable
 private fun ImagePreviewRow() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Thumbnail placeholder
         Box(
             modifier = Modifier
                 .size(width = 110.dp, height = 75.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFFCDD4E8))  // placeholder blue-gray
+                .background(Color(0xFFCDD4E8))
         )
 
         Spacer(modifier = Modifier.width(14.dp))
 
-        // Text placeholder lines
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             PlaceholderLine(width = 140.dp)
             PlaceholderLine(width = 110.dp)
@@ -308,11 +297,6 @@ private fun PlaceholderLine(width: androidx.compose.ui.unit.Dp) {
             .background(Color(0xFFDDE3F0))
     )
 }
-
-
-// ─────────────────────────────────────────────
-// Action Button  (icon + label inside a rounded card)
-// ─────────────────────────────────────────────
 
 @Composable
 private fun ActionButton(
@@ -353,11 +337,6 @@ private fun ActionButton(
     }
 }
 
-
-// ─────────────────────────────────────────────
-// Star Rating
-// ─────────────────────────────────────────────
-
 @Composable
 private fun StarRating(
     currentRating: Int,
@@ -372,66 +351,8 @@ private fun StarRating(
                 color = if (starNumber <= currentRating) Color(0xFFF2C94C) else Color(0xFFDDE3F0),
                 modifier = Modifier
                     .padding(2.dp)
-                    .let { mod ->
-                        mod // clickable can be added here for interactivity
-                    }
+                    .clickable { onRatingChange(starNumber) }
             )
         }
-    }
-}
-
-
-// ─────────────────────────────────────────────
-// Custom Bottom Bar  (Home · Settings · My Docs)
-// Uses your existing BottomBarItem component style
-// ─────────────────────────────────────────────
-
-@Composable
-private fun AfterScreenBottomBar() {
-    androidx.compose.material3.Surface(
-        color = Color.White,
-        shape = RoundedCornerShape(5.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-                .padding(horizontal = 2.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            com.example.imagetopdf.ui.components.BottomBarItem(
-                icon = Icons.Default.Home,
-                label = "Home",
-                isSelected = true,
-                onClick = {}
-            )
-            com.example.imagetopdf.ui.components.BottomBarItem(
-                icon = Icons.Default.Settings,
-                label = "Settings",
-                isSelected = false,
-                onClick = {}
-            )
-            com.example.imagetopdf.ui.components.BottomBarItem(
-                icon = Icons.Default.Folder,
-                label = "My Docs",
-                isSelected = false,
-                onClick = {}
-            )
-        }
-    }
-}
-
-
-// ─────────────────────────────────────────────
-// Preview
-// ─────────────────────────────────────────────
-
-@Preview(showSystemUi = true)
-@Composable
-fun AfterConversionScreenPreview() {
-    MaterialTheme {
-        AfterConversionScreen()
     }
 }

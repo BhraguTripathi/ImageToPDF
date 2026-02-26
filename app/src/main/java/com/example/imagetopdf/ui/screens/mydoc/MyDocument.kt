@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.imagetopdf.navigation.Screen
 import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.CustomSearchBar
 import com.example.imagetopdf.ui.components.DocumentItemCard
@@ -30,7 +32,9 @@ import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.TopBar
 
 @Composable
-fun MyDocumentScreen(){
+fun MyDocumentScreen(
+    navController: NavController
+){
 
     GradientBackground {
         Column(
@@ -44,7 +48,9 @@ fun MyDocumentScreen(){
             TopBar(
                 title = "My Documents",
                 buttonIcon = Icons.Filled.Person,
-                onButtonClicked = {}
+                onButtonClicked = {
+                    navController.navigate(Screen.Account.route)
+                }
             )
 
             /*------Main Content-----*/
@@ -92,16 +98,9 @@ fun MyDocumentScreen(){
             }
 
             /*-------Bottom Bar------*/
-            BottomBar()
+            BottomBar(
+                navController = navController
+            )
         }
-    }
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun MyDocumentScreenPreview(){
-    MaterialTheme{
-        MyDocumentScreen()
     }
 }

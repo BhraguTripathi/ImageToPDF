@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.imagetopdf.ui.components.CustomTextField
@@ -37,7 +35,11 @@ import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextPrimary
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(
+    onLoginClick: () -> Unit,
+    onSignupClick: () -> Unit,
+    onForgetPasswordClick: () -> Unit
+){
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -97,10 +99,22 @@ fun LoginScreen(){
                     }
                 )
 
+                Text(
+                    text = "Forgot Password?",
+                    color = BrandPurple,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(top = 8.dp)
+                        .clickable { onForgetPasswordClick() }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick ={ },
+                    onClick ={ onLoginClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -127,19 +141,11 @@ fun LoginScreen(){
                         text = "Sign Up",
                         color = Color(0xFF5D5FEF),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {  }
+                        modifier = Modifier.clickable { onSignupClick() }
                     )
                 }
             }
 
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun LoginScreenPreview(){
-    MaterialTheme{
-        LoginScreen()
     }
 }

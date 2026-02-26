@@ -19,13 +19,14 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun RowScope.SocialIcon(
-    image : Painter
+    image : Painter,
+    onClick: () -> Unit
 ){
     Card(
         modifier = Modifier
             .weight(1f)
             .height(56.dp)
-            .clickable { },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(Color.White),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(12.dp)

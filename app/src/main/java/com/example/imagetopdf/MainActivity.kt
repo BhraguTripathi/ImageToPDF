@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.imagetopdf.ui.screens.home.HomeScreen
-import com.example.imagetopdf.ui.screens.mydoc.MyDocumentScreen
+import androidx.navigation.compose.rememberNavController
+import com.example.imagetopdf.navigation.NavGraph
 import com.example.imagetopdf.ui.theme.ImageToPDFTheme
 
 class MainActivity : ComponentActivity() {
@@ -14,7 +14,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ImageToPDFTheme {
-                MyDocumentScreen()
+                val navController = rememberNavController()
+                NavGraph(navController = navController)
             }
         }
     }

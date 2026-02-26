@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,9 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
@@ -37,7 +36,9 @@ import com.example.imagetopdf.ui.components.SettingItemCard
 import com.example.imagetopdf.ui.components.TopBar
 
 @Composable
-fun AccountScreen(){
+fun AccountScreen(
+    navController: NavController
+){
     GradientBackground {
         Column(
             modifier = Modifier
@@ -64,7 +65,7 @@ fun AccountScreen(){
 
                 //Profile Image
                 Image(
-                    painter = painterResource(R.drawable.avatar2),
+                    painter = painterResource(R.drawable.appleicon),
                     contentDescription = "Profile Image",
                     modifier = Modifier
                         .size(120.dp)
@@ -129,15 +130,9 @@ fun AccountScreen(){
             }
 
             /*----Bottom Bar------*/
-            BottomBar()
+            BottomBar(
+                navController = navController
+            )
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun AccountScreenPreview(){
-    MaterialTheme{
-        AccountScreen()
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.imagetopdf.R
@@ -41,7 +39,10 @@ import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
-fun ForgetPasswordScreen(){
+fun ForgetPasswordScreen(
+    onSendClick: () -> Unit,
+    onBackLoginClick: () -> Unit
+){
 
     var email by remember { mutableStateOf("") }
 
@@ -88,7 +89,7 @@ fun ForgetPasswordScreen(){
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = {  },
+                    onClick = { onSendClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -109,7 +110,7 @@ fun ForgetPasswordScreen(){
                         text = "Log In",
                         color = Color(0xFF5D5FEF),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {  }
+                        modifier = Modifier.clickable { onBackLoginClick() }
                     )
                 }
 
@@ -125,13 +126,5 @@ fun ForgetPasswordScreen(){
                 )
             }
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun ForgetPasswordScreenPreview(){
-    MaterialTheme {
-        ForgetPasswordScreen()
     }
 }

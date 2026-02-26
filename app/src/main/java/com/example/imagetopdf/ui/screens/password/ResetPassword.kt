@@ -40,7 +40,9 @@ import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
-fun ResetPasswordScreen(){
+fun ResetPasswordScreen(
+    onResetPasswordClick: () -> Unit
+){
 
     var newPassword by remember { mutableStateOf("") }
     var confirmNewPassword by remember { mutableStateOf("") }
@@ -119,6 +121,7 @@ fun ResetPasswordScreen(){
                 Button(
                     onClick = {
                         // Logic: Check if newPassword == confirmPassword before submitting!
+                        onResetPasswordClick()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -144,14 +147,5 @@ fun ResetPasswordScreen(){
                 )
             }
         }
-    }
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun ResetPasswordPreview(){
-    MaterialTheme {
-        ResetPasswordScreen()
     }
 }

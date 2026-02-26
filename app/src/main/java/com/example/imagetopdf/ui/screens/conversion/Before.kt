@@ -46,7 +46,10 @@ import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
-fun BeforeConversionScreen() {
+fun BeforeConversionScreen(
+    onCloseClick: () -> Unit,
+    onConvertClick: () -> Unit
+) {
 
     var pdfName by remember { mutableStateOf("") }
 
@@ -65,7 +68,7 @@ fun BeforeConversionScreen() {
             TopBar(
                 title = "Convert to PDF",
                 buttonIcon = Icons.Default.Close,
-                onButtonClicked = { /* Handle Close/Back */ }
+                onButtonClicked = { onCloseClick() }
             )
 
             Column(
@@ -121,7 +124,7 @@ fun BeforeConversionScreen() {
 
                 /* 5. Convert Button */
                 Button(
-                    onClick = { /* TODO: Convert Logic */ },
+                    onClick = { onConvertClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -139,13 +142,5 @@ fun BeforeConversionScreen() {
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun BeforeConversionPreview() {
-    MaterialTheme {
-        BeforeConversionScreen()
     }
 }

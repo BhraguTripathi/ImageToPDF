@@ -42,7 +42,10 @@ import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
-fun SignupScreen(){
+fun SignupScreen(
+    onSignupClick: () -> Unit,
+    onLoginClick: () -> Unit
+){
 
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("")}
@@ -125,7 +128,7 @@ fun SignupScreen(){
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick ={ },
+                    onClick ={ onSignupClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -152,7 +155,7 @@ fun SignupScreen(){
                         text = "Log In",
                         color = Color(0xFF5D5FEF),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {  }
+                        modifier = Modifier.clickable { onLoginClick() }
                     )
                 }
 
@@ -187,25 +190,19 @@ fun SignupScreen(){
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ){
                     SocialIcon(
-                        image = painterResource(R.drawable.googleicon)
+                        image = painterResource(R.drawable.googleicon),
+                        onClick = { }
                     )
                     SocialIcon(
-                        image = painterResource(R.drawable.appleicon)
+                        image = painterResource(R.drawable.appleicon),
+                        onClick = { }
                     )
                     SocialIcon(
-                        image = painterResource(R.drawable.microsofticon)
+                        image = painterResource(R.drawable.microsofticon),
+                        onClick = { }
                     )
                 }
             }
         }
-    }
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun SignupScreenPreview(){
-    MaterialTheme {
-        SignupScreen()
     }
 }

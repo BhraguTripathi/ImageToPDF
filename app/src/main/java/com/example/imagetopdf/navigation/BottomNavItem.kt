@@ -16,22 +16,22 @@ sealed class BottomNavItem(
     val unselectedIcon: ImageVector
 ){
     object Home: BottomNavItem(
-        route = "home",
+        route = Screen.Home.route,
         title = "Home",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home
     )
 
     object MyDoc: BottomNavItem(
-        route = "myDoc",
+        route = Screen.MyDoc.route,
         title = "MyDoc",
         selectedIcon = Icons.Filled.Folder,
         unselectedIcon = Icons.Outlined.Folder
     )
 
-    object Profile: BottomNavItem(
-        route = "profile",
-        title = "Profile",
+    object Account: BottomNavItem(
+        route = Screen.Account.route,
+        title = "Account",
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
     )

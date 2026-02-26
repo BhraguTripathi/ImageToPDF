@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,11 +26,25 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.imagetopdf.navigation.BottomNavItem
 import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
-fun BottomBar(){
+fun BottomBar(navController: NavController){
+
+    val items = listOf(
+        BottomNavItem.Home,
+        BottomNavItem.MyDoc,
+        BottomNavItem.Account
+    )
+
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+
     Surface(
         color = Color.White,
         shape = RoundedCornerShape(5.dp),
@@ -44,26 +59,23 @@ fun BottomBar(){
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BottomBarItem(
-                icon = Icons.Default.Home,
-                label = "Home",
-                isSelected = true,
-                onClick = {  }
-            )
-
-            BottomBarItem(
-                icon = Icons.Default.Folder,
-                label = "MyDoc",
-                isSelected = true,
-                onClick = {  }
-            )
-
-            BottomBarItem(
-                icon = Icons.Default.Person,
-                label = "Profile",
-                isSelected = true,
-                onClick = {  }
-            )
+            items.forEach { item ->
+                val isSelected = currentRoute == item.route
+                BottomBarItem(
+                    icon = if (isSelected) item.selectedIcon else item.unselectedIcon,
+                    label = item.title,
+                    isSelected = isSelected,
+                    onClick = {
+                        navController.navigate(item.route){
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
 
         }
     }
@@ -95,10 +107,4 @@ fun BottomBarItem(
             fontSize = 10.sp
         )
     }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun Preview(){
-    BottomBar()
 }
