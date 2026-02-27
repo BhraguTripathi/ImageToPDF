@@ -1,7 +1,10 @@
 *.iml
 .gradle
+
+# 🚨 THE VAULT: These lines make sure Git never sees your secret keys!
 /local.properties
 local.properties
+
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -13,6 +16,3 @@ local.properties
 /captures
 .externalNativeBuild
 .cxx
-
-# Hide Supabase API Keys securely
-**/SupabaseKeys.kt
