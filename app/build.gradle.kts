@@ -75,4 +75,8 @@ dependencies {
     // There isn't a native Compose PDF viewer yet, but this wraps the Android native one nicely.
     // Use this later when you actually build the viewer screen.
     // implementation("io.github.grizeldi:studypdf:1.0.0") // Example, or use AndroidPdfViewer
+
+    // 6. Supabase
+    implementation(libs.supabase.gotrue)
+    implementation(libs.ktor.client.android)
 }

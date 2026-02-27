@@ -20,6 +20,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.components.CustomTextField
 import com.example.imagetopdf.ui.components.GradientBackground
@@ -44,7 +47,8 @@ import com.example.imagetopdf.ui.theme.TextSecondary
 @Composable
 fun SignupScreen(
     onSignupClick: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ){
 
     var fullName by remember { mutableStateOf("") }
@@ -52,6 +56,16 @@ fun SignupScreen(
     var password by remember { mutableStateOf("") }
 
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val authState by viewModel.authState.collectAsState()
+
+    /*If it succeeds, go to home*/
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success){
+            onSignupClick()
+            viewModel.resetState()
+        }
+    }
 
     GradientBackground {
 
@@ -128,7 +142,11 @@ fun SignupScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick ={ onSignupClick() },
+                    onClick ={
+                        if(email.isNotEmpty() && password.isNotEmpty()) {
+                            viewModel.signUp(email, password)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
