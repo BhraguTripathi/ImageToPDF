@@ -35,7 +35,7 @@ fun OtpInputField(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                repeat(4) { index ->
+                repeat(6) { index ->
                     val char = when {
                         index < otpText.length -> otpText[index].toString()
                         else -> ""
@@ -47,8 +47,8 @@ fun OtpInputField(
                     // DRAW THE BOX
                     Box(
                         modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
+                            .width(45.dp)
+                            .height(55.dp)
                             .border(
                                 width = if (isFocused) 2.dp else 1.dp,
                                 color = if (isFocused) Color(0xFF5D5FEF) else Color.LightGray,

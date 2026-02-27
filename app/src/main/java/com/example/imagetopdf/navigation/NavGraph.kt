@@ -1,10 +1,14 @@
 package com.example.imagetopdf.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.imagetopdf.network.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import com.example.imagetopdf.ui.screens.account.AccountScreen
+import com.example.imagetopdf.ui.screens.authentication.AuthViewModel
 import com.example.imagetopdf.ui.screens.authentication.LoginScreen
 import com.example.imagetopdf.ui.screens.authentication.OTPScreen
 import com.example.imagetopdf.ui.screens.authentication.SignupScreen
@@ -18,6 +22,10 @@ import com.example.imagetopdf.ui.screens.splashscreen.SplashScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+
+
+    val sharedAuthViewModel: AuthViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -27,8 +35,17 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Splash.route){
             SplashScreen (
                 onSplashFinished = {
-                    navController.navigate(Screen.Login.route){
-                        popUpTo(Screen.Splash.route){ inclusive = true }
+
+                    val isLoggedIn = SupabaseClient.client.auth.currentSessionOrNull() != null
+
+                    if (isLoggedIn) {
+                        navController.navigate(Screen.Home.route){
+                            popUpTo(0)
+                        }
+                    } else {
+                        navController.navigate(Screen.Login.route){
+                            popUpTo(0)
+                        }
                     }
                 }
             )
@@ -39,7 +56,7 @@ fun NavGraph(navController: NavHostController) {
             LoginScreen(
                 onLoginClick = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                        popUpTo(0)
                     }
                 },
                 onSignupClick = {
@@ -55,11 +72,11 @@ fun NavGraph(navController: NavHostController) {
             SignupScreen(
                 onSignupClick ={
                     navController.navigate(Screen.Home.route){
-                        popUpTo(Screen.Signup.route) { inclusive = true }
+                        popUpTo(0)
                     }
                 },
                 onLoginClick = {
-                    navController.popBackStack() // Goes back to the previous screen (Login)
+                    navController.popBackStack()
                 }
             )
         }
@@ -72,7 +89,8 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onBackLoginClick = {
                     navController.popBackStack()
-                }
+                },
+                viewModel = sharedAuthViewModel
             )
         }
 
@@ -82,7 +100,8 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate(Screen.ResetPassword.route){
                         popUpTo (Screen.OtpScreen.route) { inclusive = true }
                     }
-                }
+                },
+                viewModel = sharedAuthViewModel
             )
         }
 
@@ -90,14 +109,14 @@ fun NavGraph(navController: NavHostController) {
             ResetPasswordScreen(
                 onResetPasswordClick = {
                     navController.navigate(Screen.Login.route){
-                        popUpTo(Screen.ResetPassword.route) { inclusive = true }
+                        popUpTo(0)
                     }
-                }
+                },
+                viewModel = sharedAuthViewModel
             )
         }
 
-        /*-------Main App (These need NavController for the BottomBar!) ------*/
-        // Notice we pass the navController directly here because the BottomBar needs to drive!
+        /*-------Main App------*/
         composable(Screen.Home.route) {
             HomeScreen(navController = navController)
         }

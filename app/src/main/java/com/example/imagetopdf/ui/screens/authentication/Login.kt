@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -16,8 +17,11 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.imagetopdf.ui.components.CustomTextField
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.ReusableHeader
@@ -38,13 +43,23 @@ import com.example.imagetopdf.ui.theme.TextPrimary
 fun LoginScreen(
     onLoginClick: () -> Unit,
     onSignupClick: () -> Unit,
-    onForgetPasswordClick: () -> Unit
+    onForgetPasswordClick: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ){
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val authState by viewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            onLoginClick()
+            viewModel.resetState()
+        }
+    }
 
     GradientBackground {
 
@@ -111,21 +126,34 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Spacer(modifier = Modifier.height(32.dp))
+
+                if (authState is AuthState.Error) {
+                    Text(
+                        text = (authState as AuthState.Error).message,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
 
                 Button(
-                    onClick ={ onLoginClick() },
+                    onClick = {
+                        if (email.isNotEmpty() && password.isNotEmpty()) {
+                            viewModel.login(email, password)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(BrandPurple),
-                    shape = RoundedCornerShape(50)
+                    shape = RoundedCornerShape(50),
+                    enabled = authState !is AuthState.Loading
                 ) {
-                    Text(
-                        text = "Log In",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(text = "Log In", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
