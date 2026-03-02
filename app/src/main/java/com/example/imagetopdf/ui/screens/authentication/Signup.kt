@@ -143,8 +143,8 @@ fun SignupScreen(
 
                 Button(
                     onClick ={
-                        if(email.isNotEmpty() && password.isNotEmpty()) {
-                            viewModel.signUp(email, password)
+                        if(fullName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                            viewModel.signUp(fullName,email, password)
                         }
                     },
                     modifier = Modifier

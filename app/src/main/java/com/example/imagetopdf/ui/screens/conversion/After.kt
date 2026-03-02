@@ -31,6 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.components.BottomBar
@@ -59,11 +62,14 @@ import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
 fun AfterConversionScreen(
-
-    navController: NavController
+    navController: NavController,
+    viewModel: PDFViewModel = viewModel()
 ) {
 
     var selectedRating by remember { mutableIntStateOf(5) }
+
+    val selectedImages by viewModel.selectedImages.collectAsState()
+    val pdfName by viewModel.pdfName.collectAsState()
 
     GradientBackground {
         Column(
@@ -107,7 +113,11 @@ fun AfterConversionScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // ── PDF Summary Card ─────────────────────────────
-                PdfSummaryCard()
+                PdfSummaryCard(
+                    pdfName = if (pdfName.isEmpty()) "Untitled.pdf" else "$pdfName.pdf",
+                    imageCount = selectedImages.size,
+                    previewImages = selectedImages.take(2).map { it.toString() }
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 

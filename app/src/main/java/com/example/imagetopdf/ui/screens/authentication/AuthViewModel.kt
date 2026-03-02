@@ -9,6 +9,8 @@ import io.github.jan.supabase.auth.OtpType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 sealed class AuthState {
     object Idle : AuthState()
@@ -24,7 +26,7 @@ class AuthViewModel : ViewModel() {
 
     var resetEmail: String = ""
 
-    fun signUp(emailInput: String, passwordInput: String) {
+    fun signUp(nameInput: String,emailInput: String, passwordInput: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
@@ -32,6 +34,9 @@ class AuthViewModel : ViewModel() {
                 SupabaseClient.client.auth.signUpWith(Email) {
                     email = emailInput
                     password = passwordInput
+                    data = buildJsonObject {
+                        put("full_name", nameInput)
+                    }
                 }
                 _authState.value = AuthState.Success
             } catch (e: Exception) {
@@ -106,9 +111,11 @@ class AuthViewModel : ViewModel() {
         val rawError = e.message ?: ""
 
         return when {
+            /* -------- LOGIN ERRORS -------- */
             rawError.contains("Invalid login credentials", ignoreCase = true) ->
                 "Invalid email or password."
 
+            /* -------- SIGNUP ERRORS -------- */
             rawError.contains("User already registered", ignoreCase = true) ->
                 "An account with this email already exists."
 
@@ -118,11 +125,22 @@ class AuthViewModel : ViewModel() {
             rawError.contains("Unable to validate email address", ignoreCase = true) ->
                 "Please enter a valid, correctly formatted email."
 
-            rawError.contains("Email rate limit exceeded", ignoreCase = true) ->
+            /* -------- OTP & PASSWORD RESET ERRORS -------- */
+            rawError.contains("Token has expired or is invalid", ignoreCase = true) ||
+                    rawError.contains("invalid token", ignoreCase = true) ->
+                "Invalid or expired 6-digit code. Please try again."
+
+            rawError.contains("User not found", ignoreCase = true) ->
+                "No account found with this email address."
+
+            /* -------- RATE LIMITING (Spam Prevention) -------- */
+            rawError.contains("rate limit", ignoreCase = true) ||
+                    rawError.contains("over_email_send_rate_limit", ignoreCase = true) ->
                 "Too many attempts. Please wait a moment and try again."
 
+            /* -------- FALLBACK (Actual internet drop or unknown bug) -------- */
             else ->
-                "Something went wrong. Please check your connection and try again."
+                "Something went wrong. Please check your internet connection and try again."
         }
     }
 }
