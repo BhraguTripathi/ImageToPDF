@@ -43,14 +43,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
@@ -58,6 +62,9 @@ import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -145,11 +152,7 @@ fun AfterConversionScreen(
     }
 }
 
-
-// ─────────────────────────────────────────────
-// Success Header
-// ─────────────────────────────────────────────
-
+// ... SuccessHeader stays exactly the same ...
 @Composable
 private fun SuccessHeader() {
     Box(
@@ -188,12 +191,16 @@ private fun SuccessHeader() {
 }
 
 
-// ─────────────────────────────────────────────
-// PDF Summary Card
-// ─────────────────────────────────────────────
-
+// ✨ Updated Card to accept real data
 @Composable
-private fun PdfSummaryCard() {
+private fun PdfSummaryCard(
+    pdfName: String,
+    imageCount: Int,
+    previewImages: List<String>
+) {
+    // Generate today's date nicely
+    val todayDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,85 +210,52 @@ private fun PdfSummaryCard() {
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
-
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(R.drawable.pdficon),
-                    contentDescription = "PDF Icon",
-                    modifier = Modifier.size(56.dp)
-                )
+                Image(painter = painterResource(R.drawable.pdficon), contentDescription = "PDF Icon", modifier = Modifier.size(56.dp))
                 Spacer(modifier = Modifier.width(14.dp))
                 Column {
-                    Text(
-                        text = "Image Collection PDF",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
+                    Text(text = pdfName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "1.2 MB, Today",
-                        fontSize = 13.sp,
-                        color = TextSecondary
-                    )
+                    Text(text = "$imageCount Images • $todayDate", fontSize = 13.sp, color = TextSecondary)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
             HorizontalDivider(color = Color(0xFFEEEEEE))
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            ImagePreviewRow()
-            Spacer(modifier = Modifier.height(12.dp))
-            ImagePreviewRow()
+            // ✨ Dynamically show the previews!
+            previewImages.forEach { uriString ->
+                ImagePreviewRow(uriString)
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(color = Color(0xFFEEEEEE))
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Filled.Download,
-                    label = "Download\nPDF",
-                    onClick = {}
-                )
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Filled.Share,
-                    label = "Share\nPDF",
-                    onClick = {}
-                )
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Filled.Folder,
-                    label = "View PDF",
-                    onClick = {}
-                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Download, label = "Download\nPDF", onClick = {})
+                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Share, label = "Share\nPDF", onClick = {})
+                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Folder, label = "View PDF", onClick = {})
             }
         }
     }
 }
 
-
+// ✨ Updated to accept the URI string and draw the real image!
 @Composable
-private fun ImagePreviewRow() {
+private fun ImagePreviewRow(imageUriString: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        AsyncImage(
+            model = imageUriString,
+            contentDescription = "Preview",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(width = 110.dp, height = 75.dp)
                 .clip(RoundedCornerShape(10.dp))
@@ -298,71 +272,37 @@ private fun ImagePreviewRow() {
     }
 }
 
+// ... PlaceholderLine, ActionButton, and StarRating stay exactly the same ...
 @Composable
 private fun PlaceholderLine(width: androidx.compose.ui.unit.Dp) {
-    Box(
-        modifier = Modifier
-            .size(width = width, height = 10.dp)
-            .clip(RoundedCornerShape(50))
-            .background(Color(0xFFDDE3F0))
-    )
+    Box(modifier = Modifier.size(width = width, height = 10.dp).clip(RoundedCornerShape(50)).background(Color(0xFFDDE3F0)))
 }
 
 @Composable
-private fun ActionButton(
-    modifier: Modifier = Modifier,
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier
-            .height(90.dp),
-        onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F2FF)),
-        shape = RoundedCornerShape(14.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = BrandPurple,
-                modifier = Modifier.size(28.dp)
-            )
+private fun ActionButton(modifier: Modifier = Modifier, icon: ImageVector, label: String, onClick: () -> Unit) {
+    Card(modifier = modifier.height(90.dp), onClick = onClick, colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F2FF)), shape = RoundedCornerShape(14.dp), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)) {
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Icon(imageVector = icon, contentDescription = label, tint = BrandPurple, modifier = Modifier.size(28.dp))
             Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = label,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                color = TextPrimary,
-                textAlign = TextAlign.Center,
-                lineHeight = 14.sp
-            )
+            Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = TextPrimary, textAlign = TextAlign.Center, lineHeight = 14.sp)
         }
     }
 }
 
 @Composable
-private fun StarRating(
-    currentRating: Int,
-    onRatingChange: (Int) -> Unit
-) {
+private fun StarRating(currentRating: Int, onRatingChange: (Int) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         repeat(5) { index ->
             val starNumber = index + 1
-            Text(
-                text = "★",
-                fontSize = 36.sp,
-                color = if (starNumber <= currentRating) Color(0xFFF2C94C) else Color(0xFFDDE3F0),
-                modifier = Modifier
-                    .padding(2.dp)
-                    .clickable { onRatingChange(starNumber) }
-            )
+            Text(text = "★", fontSize = 36.sp, color = if (starNumber <= currentRating) Color(0xFFF2C94C) else Color(0xFFDDE3F0), modifier = Modifier.padding(2.dp).clickable { onRatingChange(starNumber) })
         }
     }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun AfterConversionPreview(){
+    AfterConversionScreen(
+        navController = NavController(LocalContext.current)
+    )
 }

@@ -14,6 +14,7 @@ import com.example.imagetopdf.ui.screens.authentication.OTPScreen
 import com.example.imagetopdf.ui.screens.authentication.SignupScreen
 import com.example.imagetopdf.ui.screens.conversion.AfterConversionScreen
 import com.example.imagetopdf.ui.screens.conversion.BeforeConversionScreen
+import com.example.imagetopdf.ui.screens.conversion.PDFViewModel
 import com.example.imagetopdf.ui.screens.home.HomeScreen
 import com.example.imagetopdf.ui.screens.mydoc.MyDocumentScreen
 import com.example.imagetopdf.ui.screens.password.ForgetPasswordScreen
@@ -25,6 +26,7 @@ fun NavGraph(navController: NavHostController) {
 
 
     val sharedAuthViewModel: AuthViewModel = viewModel()
+    val sharedPdfViewModel: PDFViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -133,12 +135,16 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.BeforeConversion.route) {
             BeforeConversionScreen(
                 onCloseClick = { navController.popBackStack() },
-                onConvertClick = { navController.navigate(Screen.AfterConversion.route) }
+                onConvertClick = { navController.navigate(Screen.AfterConversion.route) },
+                viewModel = sharedPdfViewModel
             )
         }
 
         composable(Screen.AfterConversion.route) {
-            AfterConversionScreen(navController = navController)
+            AfterConversionScreen(
+                navController = navController,
+                viewModel = sharedPdfViewModel
+            )
         }
     }
 }
