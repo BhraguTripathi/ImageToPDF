@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton // ✨ Added for the Add Photos button
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,7 +61,11 @@ fun BeforeConversionScreen(
     viewModel: PDFViewModel = viewModel()
 ) {
 
+    val context = LocalContext.current
+
     val selectedImage by viewModel.selectedImages.collectAsState()
+
+    val isConverting by viewModel.isConverting.collectAsState()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 20)
@@ -156,21 +163,27 @@ fun BeforeConversionScreen(
                 Button(
                     onClick = {
                         viewModel.setPdfName(pdfName)
-                        onConvertClick()
-                              },
+                        viewModel.createPdf(context = context, onSuccess = {
+                            onConvertClick()
+                        })
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BrandPurple),
                     shape = RoundedCornerShape(50),
-                    enabled = selectedImage.isNotEmpty() && pdfName.isNotEmpty()
+                    enabled = selectedImage.isNotEmpty() && pdfName.isNotEmpty() && !isConverting
                 ) {
-                    Text(
-                        text = "Convert to PDF",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    if(isConverting){
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(
+                            text = "Convert to PDF",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
