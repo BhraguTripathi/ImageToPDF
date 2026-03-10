@@ -5,9 +5,11 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imagetopdf.utils.PdfConverter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PDFViewModel : ViewModel(){
 
@@ -52,7 +54,9 @@ class PDFViewModel : ViewModel(){
 
         viewModelScope.launch {
             _isConverting.value = true
-            val resultFile = PdfConverter.convertImageToPdf(context, uris, name)
+            val resultFile = withContext(Dispatchers.IO){
+                PdfConverter.convertImageToPdf(context, uris, name)
+            }
 
             _isConverting.value = false
             if (resultFile!= null){

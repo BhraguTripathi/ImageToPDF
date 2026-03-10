@@ -29,7 +29,7 @@ object PdfConverter {
                     pdfDocument.finishPage(page)
                 }
             }
-            val downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val downloadFolder = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             val finalName = if (pdfName.endsWith(".pdf")) pdfName else "$pdfName.pdf"
             val file = File(downloadFolder, finalName)
 
