@@ -1,7 +1,6 @@
 package com.example.imagetopdf.ui.screens.conversion
 
 import android.content.Intent
-import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,7 +66,6 @@ import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
