@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class PDFViewModel : ViewModel(){
 
@@ -45,6 +46,8 @@ class PDFViewModel : ViewModel(){
 
     private val _isConverting = MutableStateFlow(false)
     val isConverting: StateFlow<Boolean> = _isConverting
+    private val _createPdfFile = MutableStateFlow<File?>(null)
+    val createPdfFile: StateFlow<File?> = _createPdfFile
 
     fun createPdf(context: Context, onSuccess: () -> Unit){
         val uris = _selectedImages.value
@@ -60,6 +63,7 @@ class PDFViewModel : ViewModel(){
 
             _isConverting.value = false
             if (resultFile!= null){
+                _createPdfFile.value = resultFile
                 onSuccess()
             } else {
 

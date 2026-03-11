@@ -1,5 +1,10 @@
 package com.example.imagetopdf.ui.screens.conversion
 
+import android.content.Intent
+import android.os.Environment
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,7 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -62,17 +67,16 @@ import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 
 @Composable
 fun AfterConversionScreen(
     navController: NavController,
     viewModel: PDFViewModel = viewModel()
 ) {
-
     var selectedRating by remember { mutableIntStateOf(5) }
 
     val selectedImages by viewModel.selectedImages.collectAsState()
@@ -86,7 +90,6 @@ fun AfterConversionScreen(
                 .navigationBarsPadding()
         ) {
 
-            // ── Scrollable body ──────────────────────────────
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -95,64 +98,36 @@ fun AfterConversionScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // ── Header with overlapping green check circle ──
                 SuccessHeader()
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // ── Title ────────────────────────────────────────
-                Text(
-                    text = "PDF Created!",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = TextPrimary
-                )
-
+                Text(text = "PDF Created!", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = TextPrimary)
                 Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Your PDF has been successfully created.",
-                    fontSize = 14.sp,
-                    color = TextSecondary,
-                    textAlign = TextAlign.Center
-                )
+                Text(text = "Your PDF has been successfully created.", fontSize = 14.sp, color = TextSecondary, textAlign = TextAlign.Center)
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // ── PDF Summary Card ─────────────────────────────
                 PdfSummaryCard(
-                    pdfName = if (pdfName.isEmpty()) "Untitled.pdf" else "$pdfName.pdf",
+                    pdfName = if (pdfName.isEmpty()) "Untitled.pdf" else if (pdfName.endsWith(".pdf")) pdfName else "$pdfName.pdf",
                     imageCount = selectedImages.size,
-                    previewImages = selectedImages.take(2).map { it.toString() }
+                    previewImages = selectedImages.take(2).map { it.toString() },
+                    viewModel = viewModel
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // ── Rating Section ───────────────────────────────
-                Text(
-                    text = "Please rate your experience",
-                    fontSize = 14.sp,
-                    color = TextSecondary
-                )
-
+                Text(text = "Please rate your experience", fontSize = 14.sp, color = TextSecondary)
                 Spacer(modifier = Modifier.height(10.dp))
-
-                StarRating(
-                    currentRating = selectedRating,
-                    onRatingChange = { selectedRating = it }
-                )
-
+                StarRating(currentRating = selectedRating, onRatingChange = { selectedRating = it })
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // ── Bottom Nav ───────────────────────────────────────
-            // 2. We use YOUR perfectly designed BottomBar component here!
             BottomBar(navController = navController)
         }
     }
 }
 
-// ... SuccessHeader stays exactly the same ...
 @Composable
 private fun SuccessHeader() {
     Box(
@@ -190,16 +165,33 @@ private fun SuccessHeader() {
     }
 }
 
-
-// ✨ Updated Card to accept real data
 @Composable
 private fun PdfSummaryCard(
     pdfName: String,
     imageCount: Int,
-    previewImages: List<String>
+    previewImages: List<String>,
+    viewModel: PDFViewModel
 ) {
-    // Generate today's date nicely
+    val context = LocalContext.current
+    val createdFile by viewModel.createPdfFile.collectAsState()
     val todayDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+
+    val saveDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri ->
+        if (uri != null && createdFile != null) {
+            try {
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    createdFile!!.inputStream().use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+                Toast.makeText(context, "Saved successfully!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Failed to save file", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -226,7 +218,6 @@ private fun PdfSummaryCard(
             HorizontalDivider(color = Color(0xFFEEEEEE))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✨ Dynamically show the previews!
             previewImages.forEach { uriString ->
                 ImagePreviewRow(uriString)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -237,15 +228,43 @@ private fun PdfSummaryCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Download, label = "Download\nPDF", onClick = {})
-                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Share, label = "Share\nPDF", onClick = {})
-                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Folder, label = "View PDF", onClick = {})
+
+                // 1. DOWNLOAD BUTTON
+                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Download, label = "Download\nPDF", onClick = {
+                    createdFile?.let { privateFile ->
+                        saveDocumentLauncher.launch(privateFile.name)
+                    }
+                })
+
+                // 2. SHARE BUTTON
+                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Share, label = "Share\nPDF", onClick = {
+                    createdFile?.let { file ->
+                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/pdf"
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Share PDF using..."))
+                    }
+                })
+
+                // 3. VIEW BUTTON
+                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Folder, label = "View PDF", onClick = {
+                    createdFile?.let { file ->
+                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+                        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(uri, "application/pdf")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(viewIntent, "Open PDF with..."))
+                    }
+                })
             }
         }
     }
 }
 
-// ✨ Updated to accept the URI string and draw the real image!
 @Composable
 private fun ImagePreviewRow(imageUriString: String) {
     Row(
@@ -272,7 +291,6 @@ private fun ImagePreviewRow(imageUriString: String) {
     }
 }
 
-// ... PlaceholderLine, ActionButton, and StarRating stay exactly the same ...
 @Composable
 private fun PlaceholderLine(width: androidx.compose.ui.unit.Dp) {
     Box(modifier = Modifier.size(width = width, height = 10.dp).clip(RoundedCornerShape(50)).background(Color(0xFFDDE3F0)))
@@ -301,7 +319,7 @@ private fun StarRating(currentRating: Int, onRatingChange: (Int) -> Unit) {
 
 @Preview(showSystemUi = true)
 @Composable
-fun AfterConversionPreview(){
+fun AfterPreview(){
     AfterConversionScreen(
         navController = NavController(LocalContext.current)
     )

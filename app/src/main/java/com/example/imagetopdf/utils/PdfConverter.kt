@@ -1,12 +1,14 @@
 package com.example.imagetopdf.utils
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.max
 
 object PdfConverter {
 
@@ -17,10 +19,17 @@ object PdfConverter {
         try {
             for ((index, uri) in imageUris.withIndex()){
                 val inputStream = context.contentResolver.openInputStream(uri)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
+                var bitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
 
                 if(bitmap!=null){
+                    val maxWidth=1000
+                    if(bitmap.width > maxWidth){
+                        val ratio = bitmap.width.toFloat() / bitmap.height.toFloat()
+                        val newHeight = (maxWidth/ratio).toInt()
+                        bitmap = Bitmap.createScaledBitmap(bitmap, maxWidth, newHeight, true)
+                    }
+
                     val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width,bitmap.height,index+1).create()
                     val page = pdfDocument.startPage(pageInfo)
 
