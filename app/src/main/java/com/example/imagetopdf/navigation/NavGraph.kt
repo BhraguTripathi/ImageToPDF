@@ -1,6 +1,7 @@
 package com.example.imagetopdf.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,6 +21,7 @@ import com.example.imagetopdf.ui.screens.mydoc.MyDocumentScreen
 import com.example.imagetopdf.ui.screens.password.ForgetPasswordScreen
 import com.example.imagetopdf.ui.screens.password.ResetPasswordScreen
 import com.example.imagetopdf.ui.screens.splashscreen.SplashScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -35,19 +37,23 @@ fun NavGraph(navController: NavHostController) {
 
         /*-------Splash Screen------*/
         composable(Screen.Splash.route){
+            val scope = rememberCoroutineScope()
             SplashScreen (
                 onSplashFinished = {
+                    scope.launch {
+                            SupabaseClient.client.auth.awaitInitialization()
 
-                    val isLoggedIn = SupabaseClient.client.auth.currentSessionOrNull() != null
+                            val isLoggedIn = SupabaseClient.client.auth.currentSessionOrNull() != null
 
-                    if (isLoggedIn) {
-                        navController.navigate(Screen.Home.route){
-                            popUpTo(0)
-                        }
-                    } else {
-                        navController.navigate(Screen.Login.route){
-                            popUpTo(0)
-                        }
+                            if (isLoggedIn) {
+                                navController.navigate(Screen.Home.route){
+                                    popUpTo(0)
+                                }
+                            } else {
+                                navController.navigate(Screen.Login.route){
+                                    popUpTo(0)
+                                }
+                            }
                     }
                 }
             )
