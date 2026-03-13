@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
@@ -43,19 +41,18 @@ import java.util.Locale
 @Composable
 fun MyDocumentScreen(
     navController: NavController
-){
+) {
     val context = LocalContext.current
     var searchText by remember { mutableStateOf("") }
-
     var savePdfs by remember { mutableStateOf<List<File>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         val directory = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        if (directory != null && directory.exists()){
+        if (directory != null && directory.exists()) {
             val files = directory.listFiles { file ->
                 file.extension.equals("pdf", ignoreCase = true)
             }
-            if (files != null ){
+            if (files != null) {
                 savePdfs = files.sortedByDescending { it.lastModified() }
             }
         }
@@ -74,8 +71,6 @@ fun MyDocumentScreen(
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
-
-            /*-------Top Bar-------*/
             TopBar(
                 title = "My Documents",
                 buttonIcon = Icons.Filled.Person,
@@ -84,7 +79,6 @@ fun MyDocumentScreen(
                 }
             )
 
-            /*------Main Content-----*/
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,25 +87,22 @@ fun MyDocumentScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                
                 Spacer(modifier = Modifier.height(24.dp))
 
-                var searchText by remember { mutableStateOf("") }
                 CustomSearchBar(
-                    query=searchText,
-                    onQueryChange = {
-                        newText -> searchText = newText
+                    query = searchText,
+                    onQueryChange = { newText ->
+                        searchText = newText
                     }
                 )
 
-                Spacer(modifier =Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
-                    items(filteredPdfs){
-                    file ->
+                    items(filteredPdfs) { file ->
                         DocumentItemCard(
                             title = file.name,
                             date = dateFormat.format(Date(file.lastModified())),
@@ -126,9 +117,10 @@ fun MyDocumentScreen(
                                         setDataAndType(uri, "application/pdf")
                                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     }
-                                    context.startActivity(Intent.createChooser(viewIntent, "Open PDF"))
-                                }
-                                catch (e : Exception){
+                                    context.startActivity(
+                                        Intent.createChooser(viewIntent, "Open PDF")
+                                    )
+                                } catch (e: Exception) {
                                     e.printStackTrace()
                                 }
                             }
@@ -137,10 +129,7 @@ fun MyDocumentScreen(
                 }
             }
 
-            /*-------Bottom Bar------*/
-            BottomBar(
-                navController = navController
-            )
+            BottomBar(navController = navController)
         }
     }
 }

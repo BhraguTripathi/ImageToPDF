@@ -27,18 +27,15 @@ fun CustomSearchBar(
     placeholderText: String = "Search"
 ) {
 
-    var searchQuery by remember {
-        mutableStateOf("")
-    }
 
     OutlinedTextField(
-        value = searchQuery,
+        value = query,
         onValueChange = {
-                newText -> searchQuery = newText
+                newText -> onQueryChange(newText)
         },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(60.dp)
             .padding(horizontal = 10.dp),
         placeholder = {
             Text(text = "Search", color = Color.Gray)
