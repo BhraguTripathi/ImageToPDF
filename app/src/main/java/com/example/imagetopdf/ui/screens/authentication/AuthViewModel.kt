@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 sealed class AuthState {
@@ -26,11 +27,38 @@ class AuthViewModel : ViewModel() {
 
     var resetEmail: String = ""
 
-    fun signUp(nameInput: String,emailInput: String, passwordInput: String) {
+    // ---- User Profile State ----
+    private val _currentUserName = MutableStateFlow("")
+    val currentUserName: StateFlow<String> = _currentUserName
+
+    private val _currentUserEmail = MutableStateFlow("")
+    val currentUserEmail: StateFlow<String> = _currentUserEmail
+
+    fun loadCurrentUser() {
+        viewModelScope.launch {
+            try {
+                val user = SupabaseClient.client.auth.currentUserOrNull()
+                val email = user?.email ?: ""
+                _currentUserEmail.value = email
+
+                val rawName = user?.userMetadata?.get("full_name")?.jsonPrimitive?.content
+                _currentUserName.value = if (!rawName.isNullOrBlank() && rawName != "null") {
+                    rawName
+                } else {
+                    email.substringBefore("@").replaceFirstChar { it.uppercase() }
+                }
+            } catch (e: Exception) {
+                _currentUserName.value = "User"
+                _currentUserEmail.value = ""
+            }
+        }
+    }
+
+    // ---- Auth Functions ----
+    fun signUp(nameInput: String, emailInput: String, passwordInput: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                // Talk to Supabase
                 SupabaseClient.client.auth.signUpWith(Email) {
                     email = emailInput
                     password = passwordInput
@@ -45,7 +73,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun login(emailInput: String,passwordInput: String){
+    fun login(emailInput: String, passwordInput: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
@@ -60,7 +88,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun sendPasswordResetOtp(emailInput: String){
+    fun sendPasswordResetOtp(emailInput: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
@@ -73,7 +101,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun verifyResetOtp(otpInput: String){
+    fun verifyResetOtp(otpInput: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
@@ -107,6 +135,7 @@ class AuthViewModel : ViewModel() {
         _authState.value = AuthState.Idle
     }
 
+    // ---- Error Handling ----
     private fun getCleanErrorMessage(e: Exception): String {
         val rawError = e.message ?: ""
 
@@ -133,12 +162,12 @@ class AuthViewModel : ViewModel() {
             rawError.contains("User not found", ignoreCase = true) ->
                 "No account found with this email address."
 
-            /* -------- RATE LIMITING (Spam Prevention) -------- */
+            /* -------- RATE LIMITING -------- */
             rawError.contains("rate limit", ignoreCase = true) ||
                     rawError.contains("over_email_send_rate_limit", ignoreCase = true) ->
                 "Too many attempts. Please wait a moment and try again."
 
-            /* -------- FALLBACK (Actual internet drop or unknown bug) -------- */
+            /* -------- FALLBACK -------- */
             else ->
                 "Something went wrong. Please check your internet connection and try again."
         }

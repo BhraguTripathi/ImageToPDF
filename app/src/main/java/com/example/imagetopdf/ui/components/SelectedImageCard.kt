@@ -37,7 +37,7 @@ fun SelectedImageCard(
             .background(Color.White)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.splasscreen),  //user's selected image
+            painter = painterResource(id = R.drawable.user),  //user's selected image
             contentDescription = "Selected Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
