@@ -38,6 +38,11 @@ class PDFViewModel : ViewModel(){
         _selectedImages.value = emptyList()
     }
 
+    fun clearAll() {
+        _selectedImages.value = emptyList()
+        _pdfName.value = ""
+    }
+
     //Store PDF name
     private val _pdfName = MutableStateFlow<String>("")
     val pdfName: StateFlow<String> = _pdfName
