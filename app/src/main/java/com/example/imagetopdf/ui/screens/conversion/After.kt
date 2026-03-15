@@ -109,7 +109,6 @@ fun AfterConversionScreen(
                 PdfSummaryCard(
                     pdfName = if (pdfName.isEmpty()) "Untitled.pdf" else if (pdfName.endsWith(".pdf")) pdfName else "$pdfName.pdf",
                     imageCount = selectedImages.size,
-                    previewImages = selectedImages.take(2).map { it.toString() },
                     viewModel = viewModel
                 )
 
@@ -167,12 +166,21 @@ private fun SuccessHeader() {
 private fun PdfSummaryCard(
     pdfName: String,
     imageCount: Int,
-    previewImages: List<String>,
     viewModel: PDFViewModel
 ) {
     val context = LocalContext.current
     val createdFile by viewModel.createPdfFile.collectAsState()
     val todayDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+
+    // ✅ Calculate real file size
+    val fileSize = remember(createdFile) {
+        val bytes = createdFile?.length() ?: 0L
+        when {
+            bytes >= 1_000_000 -> String.format("%.2f MB", bytes / 1_000_000.0)
+            bytes >= 1_000 -> String.format("%.1f KB", bytes / 1_000.0)
+            else -> "$bytes B"
+        }
+    }
 
     val saveDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
@@ -200,66 +208,153 @@ private fun PdfSummaryCard(
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
         ) {
+
+            // ✅ PDF Icon + Name at the top
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(painter = painterResource(R.drawable.pdficon), contentDescription = "PDF Icon", modifier = Modifier.size(56.dp))
+                Image(
+                    painter = painterResource(R.drawable.pdficon),
+                    contentDescription = "PDF Icon",
+                    modifier = Modifier.size(52.dp)
+                )
                 Spacer(modifier = Modifier.width(14.dp))
-                Column {
-                    Text(text = pdfName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "$imageCount Images • $todayDate", fontSize = 13.sp, color = TextSecondary)
-                }
+                Text(
+                    text = pdfName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(color = Color(0xFFEEEEEE))
             Spacer(modifier = Modifier.height(16.dp))
 
-            previewImages.forEach { uriString ->
-                ImagePreviewRow(uriString)
-                Spacer(modifier = Modifier.height(12.dp))
-            }
+            // ✅ Vertical stats list
+            StatRow(
+                icon = "📄",
+                label = "Total Pages",
+                value = "$imageCount pages"
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            StatRow(
+                icon = "💾",
+                label = "File Size",
+                value = fileSize
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            StatRow(
+                icon = "📅",
+                label = "Date Created",
+                value = todayDate
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(color = Color(0xFFEEEEEE))
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-
-                // 1. DOWNLOAD BUTTON
-                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Download, label = "Download\nPDF", onClick = {
-                    createdFile?.let { privateFile ->
-                        saveDocumentLauncher.launch(privateFile.name)
-                    }
-                })
-
-                // 2. SHARE BUTTON
-                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Share, label = "Share\nPDF", onClick = {
-                    createdFile?.let { file ->
-                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/pdf"
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // ✅ Action Buttons (unchanged)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                ActionButton(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Filled.Download,
+                    label = "Download\nPDF",
+                    onClick = {
+                        createdFile?.let { privateFile ->
+                            saveDocumentLauncher.launch(privateFile.name)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "Share PDF using..."))
                     }
-                })
+                )
 
-                // 3. VIEW BUTTON
-                ActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Folder, label = "View PDF", onClick = {
-                    createdFile?.let { file ->
-                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-                        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(uri, "application/pdf")
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                ActionButton(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Filled.Share,
+                    label = "Share\nPDF",
+                    onClick = {
+                        createdFile?.let { file ->
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider",
+                                file
+                            )
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/pdf"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            context.startActivity(
+                                Intent.createChooser(shareIntent, "Share PDF using...")
+                            )
                         }
-                        context.startActivity(Intent.createChooser(viewIntent, "Open PDF with..."))
                     }
-                })
+                )
+
+                ActionButton(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Filled.Folder,
+                    label = "View PDF",
+                    onClick = {
+                        createdFile?.let { file ->
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider",
+                                file
+                            )
+                            val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(uri, "application/pdf")
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            context.startActivity(
+                                Intent.createChooser(viewIntent, "Open PDF with...")
+                            )
+                        }
+                    }
+                )
             }
         }
+    }
+}
+
+// ✅ New reusable stat row composable
+@Composable
+private fun StatRow(
+    icon: String,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = icon, fontSize = 18.sp)
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = TextSecondary,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            color = TextPrimary,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 

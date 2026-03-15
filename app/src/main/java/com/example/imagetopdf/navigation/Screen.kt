@@ -12,4 +12,8 @@ sealed class Screen(val route: String) {
     object ForgetPassword: Screen("forget_password")
     object ResetPassword: Screen("reset_password")
     object OtpScreen: Screen("otp_screen")
+    // Add this one line
+    object ComingSoon : Screen("coming_soon/{featureName}") {
+        fun createRoute(featureName: String) = "coming_soon/$featureName"
+    }
 }

@@ -13,6 +13,7 @@ import com.example.imagetopdf.ui.screens.authentication.AuthViewModel
 import com.example.imagetopdf.ui.screens.authentication.LoginScreen
 import com.example.imagetopdf.ui.screens.authentication.OTPScreen
 import com.example.imagetopdf.ui.screens.authentication.SignupScreen
+import com.example.imagetopdf.ui.screens.comingsoonfeature.ComingSoonScreen
 import com.example.imagetopdf.ui.screens.conversion.AfterConversionScreen
 import com.example.imagetopdf.ui.screens.conversion.BeforeConversionScreen
 import com.example.imagetopdf.ui.screens.conversion.PDFViewModel
@@ -26,45 +27,43 @@ import kotlinx.coroutines.launch
 @Composable
 fun NavGraph(navController: NavHostController) {
 
-
     val sharedAuthViewModel: AuthViewModel = viewModel()
     val sharedPdfViewModel: PDFViewModel = viewModel()
 
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
-    ){
+    ) {
 
-        /*-------Splash Screen------*/
-        composable(Screen.Splash.route){
+        /*------- Splash Screen -------*/
+        composable(Screen.Splash.route) {
             val scope = rememberCoroutineScope()
-            SplashScreen (
+            SplashScreen(
                 onSplashFinished = {
                     scope.launch {
-                            SupabaseClient.client.auth.awaitInitialization()
-
-                            val isLoggedIn = SupabaseClient.client.auth.currentSessionOrNull() != null
-
-                            if (isLoggedIn) {
-                                navController.navigate(Screen.Home.route){
-                                    popUpTo(0)
-                                }
-                            } else {
-                                navController.navigate(Screen.Login.route){
-                                    popUpTo(0)
-                                }
+                        SupabaseClient.client.auth.awaitInitialization()
+                        val isLoggedIn =
+                            SupabaseClient.client.auth.currentSessionOrNull() != null
+                        if (isLoggedIn) {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(0) { inclusive = true }
                             }
+                        } else {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
                     }
                 }
             )
         }
 
-        /*-------Authentication-------*/
+        /*------- Login -------*/
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginClick = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(0)
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onSignupClick = {
@@ -76,11 +75,12 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        composable(Screen.Signup.route){
+        /*------- Signup -------*/
+        composable(Screen.Signup.route) {
             SignupScreen(
-                onSignupClick ={
-                    navController.navigate(Screen.Home.route){
-                        popUpTo(0)
+                onSignupClick = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onLoginClick = {
@@ -89,11 +89,13 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        /*------Password-------*/
+        /*------- Forget Password -------*/
         composable(Screen.ForgetPassword.route) {
             ForgetPasswordScreen(
-                onSendClick ={
-                    navController.navigate(Screen.OtpScreen.route)
+                onSendClick = {
+                    navController.navigate(Screen.OtpScreen.route) {
+                        popUpTo(Screen.ForgetPassword.route) { inclusive = true }
+                    }
                 },
                 onBackLoginClick = {
                     navController.popBackStack()
@@ -102,29 +104,31 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
+        /*------- OTP Screen -------*/
         composable(Screen.OtpScreen.route) {
             OTPScreen(
                 onVerifyClick = {
-                    navController.navigate(Screen.ResetPassword.route){
-                        popUpTo (Screen.OtpScreen.route) { inclusive = true }
+                    navController.navigate(Screen.ResetPassword.route) {
+                        popUpTo(Screen.OtpScreen.route) { inclusive = true }
                     }
                 },
                 viewModel = sharedAuthViewModel
             )
         }
 
+        /*------- Reset Password -------*/
         composable(Screen.ResetPassword.route) {
             ResetPasswordScreen(
                 onResetPasswordClick = {
-                    navController.navigate(Screen.Login.route){
-                        popUpTo(0)
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 viewModel = sharedAuthViewModel
             )
         }
 
-        /*-------Main App------*/
+        /*------- Main App Screens -------*/
         composable(Screen.Home.route) {
             HomeScreen(navController = navController)
         }
@@ -137,11 +141,17 @@ fun NavGraph(navController: NavHostController) {
             AccountScreen(navController = navController)
         }
 
-        /*-------Conversion Screens------*/
+        /*------- Conversion Screens -------*/
         composable(Screen.BeforeConversion.route) {
             BeforeConversionScreen(
-                onCloseClick = { navController.popBackStack() },
-                onConvertClick = { navController.navigate(Screen.AfterConversion.route) },
+                onCloseClick = {
+                    navController.popBackStack()
+                },
+                onConvertClick = {
+                    navController.navigate(Screen.AfterConversion.route) {
+                        popUpTo(Screen.BeforeConversion.route) { inclusive = true }
+                    }
+                },
                 viewModel = sharedPdfViewModel
             )
         }
@@ -150,6 +160,14 @@ fun NavGraph(navController: NavHostController) {
             AfterConversionScreen(
                 navController = navController,
                 viewModel = sharedPdfViewModel
+            )
+        }
+
+        composable(Screen.ComingSoon.route) { backStackEntry ->
+            val featureName = backStackEntry.arguments?.getString("featureName") ?: "Feature"
+            ComingSoonScreen(
+                featureName = featureName,
+                navController = navController
             )
         }
     }

@@ -12,7 +12,7 @@ import kotlin.math.max
 
 object PdfConverter {
 
-    fun convertImageToPdf(context: Context, imageUris: List<Uri>, pdfName: String): File?{
+    fun convertImageToPdf(context: Context, imageUris: List<Uri>, pdfName: String, userId: String): File?{
 
         val pdfDocument = PdfDocument()
 
@@ -38,9 +38,15 @@ object PdfConverter {
                     pdfDocument.finishPage(page)
                 }
             }
-            val downloadFolder = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+
+            val bashFolder = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            val userFolder = File(bashFolder, userId)
+            if (!userFolder.exists()) {
+                userFolder.mkdirs()
+            }
+
             val finalName = if (pdfName.endsWith(".pdf")) pdfName else "$pdfName.pdf"
-            val file = File(downloadFolder, finalName)
+            val file = File(userFolder, finalName)
 
             val outputStream = FileOutputStream(file)
             pdfDocument.writeTo(outputStream)

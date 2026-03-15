@@ -1,11 +1,14 @@
 package com.example.imagetopdf.ui.screens.conversion
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest // ✨ Needed for launch()
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row // ✨ Added for layout
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +23,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items // ✨ Important for items(List)
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -27,6 +31,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton // ✨ Added for the Add Photos button
@@ -67,6 +72,12 @@ fun BeforeConversionScreen(
 
     val isConverting by viewModel.isConverting.collectAsState()
 
+    BackHandler {
+        viewModel.clearImages()
+        viewModel.setPdfName("")
+        onCloseClick()
+    }
+
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 20)
     ) {
@@ -88,7 +99,11 @@ fun BeforeConversionScreen(
             TopBar(
                 title = "Convert to PDF",
                 buttonIcon = Icons.Default.Close,
-                onButtonClicked = { onCloseClick() }
+                onButtonClicked = {
+                    viewModel.clearImages()
+                    viewModel.setPdfName("")
+                    onCloseClick()
+                }
             )
 
             Column(
@@ -134,15 +149,39 @@ fun BeforeConversionScreen(
                 ) {
                     items(selectedImage){
                         uri ->
-                        AsyncImage(
-                            model = uri,
-                            contentDescription = "Selected Images",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.White)
-                        )
+                        Box(
+                            modifier = Modifier.aspectRatio(1f)
+                        ){
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = "Selected Images",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.White)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(4.dp)
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x99000000))
+                                    .clickable {
+                                        viewModel.removeImage(uri)
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Remove Image",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
                     }
                 }
 

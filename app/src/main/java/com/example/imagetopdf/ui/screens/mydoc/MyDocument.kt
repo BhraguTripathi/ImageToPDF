@@ -28,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.example.imagetopdf.navigation.Screen
+import com.example.imagetopdf.network.SupabaseClient
 import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.CustomSearchBar
 import com.example.imagetopdf.ui.components.DocumentItemCard
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.TopBar
+import io.github.jan.supabase.auth.auth
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,17 +49,31 @@ fun MyDocumentScreen(
     var savePdfs by remember { mutableStateOf<List<File>>(emptyList()) }
 
     LaunchedEffect(Unit) {
-        val directory = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        if (directory != null && directory.exists()) {
-            val files = directory.listFiles { file ->
+        val userId = SupabaseClient.client.auth.currentUserOrNull()?.id ?: "guest"
+
+        // 1. Get the base Downloads folder
+        val baseDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+
+        // 2. Point to the specific USER folder inside Downloads
+        val userDirectory = File(baseDir, userId)
+
+        // 3. Check if the user folder exists and read from THERE
+        if (userDirectory.exists()) {
+            val files = userDirectory.listFiles { file ->
                 file.extension.equals("pdf", ignoreCase = true)
             }
             if (files != null) {
                 savePdfs = files.sortedByDescending { it.lastModified() }
+            } else {
+                savePdfs = emptyList()
             }
+        } else {
+            // Folder doesn't exist (user hasn't created any PDFs yet)
+            savePdfs = emptyList()
         }
     }
 
+    // Filter using the single source of truth for searchText
     val filteredPdfs = savePdfs.filter { file ->
         file.name.contains(searchText, ignoreCase = true)
     }

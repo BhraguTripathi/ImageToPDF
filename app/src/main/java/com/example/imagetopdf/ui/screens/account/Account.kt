@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Language
@@ -259,36 +260,46 @@ fun AccountScreen(
                 SettingItemCard(
                     title = "Change Password",
                     icon = Icons.Filled.Lock,
-                    iconTint = Color(0xFFF2994A), // Orange
-                    onClick = { /* Handle Click */ }
+                    iconTint = Color(0xFFF2994A),
+                    onClick = {
+                        navController.navigate(Screen.ComingSoon.createRoute("Change Password"))
+                    }
                 )
 
                 SettingItemCard(
                     title = "Notifications",
                     icon = Icons.Filled.Notifications,
-                    iconTint = Color(0xFF5D5FEF), // Your Brand Purple
-                    onClick = { /* Handle Click */ }
+                    iconTint = Color(0xFF5D5FEF),
+                    onClick = {
+                        navController.navigate(Screen.ComingSoon.createRoute("Notifications"))
+                    }
                 )
 
                 SettingItemCard(
                     title = "Appearance",
                     icon = Icons.Filled.Edit,
                     iconTint = Color(0xFF5D5FEF),
-                    onClick = { /* Handle Click */ }
+                    onClick = {
+                        navController.navigate(Screen.ComingSoon.createRoute("Appearance"))
+                    }
                 )
 
                 SettingItemCard(
                     title = "Language",
                     icon = Icons.Filled.Language,
                     iconTint = Color(0xFF5D5FEF),
-                    onClick = { /* Handle Click */ }
+                    onClick = {
+                        navController.navigate(Screen.ComingSoon.createRoute("Language"))
+                    }
                 )
 
                 SettingItemCard(
                     title = "Support",
-                    icon = Icons.Filled.HelpOutline,
+                    icon = Icons.AutoMirrored.Filled.HelpOutline,
                     iconTint = Color(0xFF5D5FEF),
-                    onClick = { /* Handle Click */ }
+                    onClick = {
+                        navController.navigate(Screen.ComingSoon.createRoute("Support"))
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(40.dp))

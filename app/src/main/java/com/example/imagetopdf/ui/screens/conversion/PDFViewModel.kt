@@ -4,7 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.imagetopdf.network.SupabaseClient
 import com.example.imagetopdf.utils.PdfConverter
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,8 +59,11 @@ class PDFViewModel : ViewModel(){
 
         viewModelScope.launch {
             _isConverting.value = true
+
+            val userId = SupabaseClient.client.auth.currentUserOrNull()?.id ?: "guest"
+
             val resultFile = withContext(Dispatchers.IO){
-                PdfConverter.convertImageToPdf(context, uris, name)
+                PdfConverter.convertImageToPdf(context, uris, name,userId)
             }
 
             _isConverting.value = false
