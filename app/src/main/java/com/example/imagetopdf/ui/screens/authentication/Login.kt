@@ -152,7 +152,7 @@ fun LoginScreen(
                     if (authState is AuthState.Loading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
-                        Text(text = "Log In", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Log In", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
 
@@ -167,7 +167,7 @@ fun LoginScreen(
                     Text(text = "Don't have an account? ", color = Color.Gray)
                     Text(
                         text = "Sign Up",
-                        color = Color(0xFF5D5FEF),
+                        color = BrandPurple,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable { onSignupClick() }
                     )

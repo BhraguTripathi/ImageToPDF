@@ -57,6 +57,7 @@ import com.example.imagetopdf.ui.components.CustomTextField
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.TopBar
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.ui.theme.OverlayBlack
 import com.example.imagetopdf.ui.theme.TextPrimary
 
 @Composable
@@ -168,7 +169,7 @@ fun BeforeConversionScreen(
                                     .padding(4.dp)
                                     .size(24.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0x99000000))
+                                    .background(OverlayBlack)
                                     .clickable {
                                         viewModel.removeImage(uri)
                                     },

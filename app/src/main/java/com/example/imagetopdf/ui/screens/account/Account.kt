@@ -63,8 +63,11 @@ import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.SettingItemCard
 import com.example.imagetopdf.ui.components.TopBar
+import com.example.imagetopdf.ui.theme.AccentOrange
 import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.ui.theme.SignOutRed
+import com.example.imagetopdf.ui.theme.TextPrimary
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonPrimitive
@@ -127,10 +130,10 @@ fun AccountScreen(
             onDismissRequest = { showSignOutDialog = false },
             containerColor = Color.White,
             title = {
-                Text(text = "Sign Out", fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(text = "Sign Out", fontWeight = FontWeight.Bold, color = TextPrimary)
             },
             text = {
-                Text(text = "Are you sure you want to sign out?", color = Color.Black)
+                Text(text = "Are you sure you want to sign out?", color = TextPrimary)
             },
             confirmButton = {
                 Button(
@@ -147,7 +150,7 @@ fun AccountScreen(
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4B4B))
+                    colors = ButtonDefaults.buttonColors(containerColor = SignOutRed)
                 ) {
                     Text(text = "Sign Out", color = Color.White)
                 }
@@ -155,7 +158,7 @@ fun AccountScreen(
             dismissButton = {
                 Button(
                     onClick = { showSignOutDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D5FEF))
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandPurple)
                 ) {
                     Text(text = "Cancel", color = Color.White)
                 }
@@ -223,7 +226,7 @@ fun AccountScreen(
                         modifier = Modifier
                             .size(30.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF5D5FEF))
+                            .background(BrandPurple)
                             .padding(6.dp),
                         contentAlignment = Alignment.Center
                     ){
@@ -260,7 +263,7 @@ fun AccountScreen(
                 SettingItemCard(
                     title = "Change Password",
                     icon = Icons.Filled.Lock,
-                    iconTint = Color(0xFFF2994A),
+                    iconTint = AccentOrange,
                     onClick = {
                         navController.navigate(Screen.ComingSoon.createRoute("Change Password"))
                     }
@@ -269,7 +272,7 @@ fun AccountScreen(
                 SettingItemCard(
                     title = "Notifications",
                     icon = Icons.Filled.Notifications,
-                    iconTint = Color(0xFF5D5FEF),
+                    iconTint = BrandPurple,
                     onClick = {
                         navController.navigate(Screen.ComingSoon.createRoute("Notifications"))
                     }
@@ -278,7 +281,7 @@ fun AccountScreen(
                 SettingItemCard(
                     title = "Appearance",
                     icon = Icons.Filled.Edit,
-                    iconTint = Color(0xFF5D5FEF),
+                    iconTint = BrandPurple,
                     onClick = {
                         navController.navigate(Screen.ComingSoon.createRoute("Appearance"))
                     }
@@ -312,7 +315,7 @@ fun AccountScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
                         .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4B4B)), // Red color for Sign Out
+                    colors = ButtonDefaults.buttonColors(containerColor = SignOutRed), // Red color for Sign Out
                     shape = RoundedCornerShape(50)
                 ) {
                     Text(

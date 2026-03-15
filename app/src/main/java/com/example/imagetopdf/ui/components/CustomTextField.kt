@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.imagetopdf.ui.theme.IconTint
 
 @Composable
 fun CustomTextField(
@@ -51,14 +52,14 @@ fun CustomTextField(
             Icon(
                 imageVector = icon,
                 contentDescription = hint,
-                tint = Color.LightGray
+                tint = IconTint
             )
         },
         trailingIcon = {
             if (isPasswordField){
                 val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                 IconButton(onClick = onVisibilityIconClick) {
-                    Icon(imageVector = image, contentDescription = "Toggle password visibility", tint = Color.LightGray)
+                    Icon(imageVector = image, contentDescription = "Toggle password visibility", tint = IconTint)
                 }
             }
         },
@@ -72,8 +73,10 @@ fun CustomTextField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            focusedBorderColor = Color(0xFF5D5FEF),
-            unfocusedBorderColor = Color.LightGray
+            focusedBorderColor = IconTint,
+            unfocusedBorderColor = Color.LightGray,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black
         )
     )
 

@@ -11,13 +11,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.imagetopdf.ui.theme.IconTint
 
 @Composable
 fun CustomSearchBar(
@@ -52,9 +49,11 @@ fun CustomSearchBar(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
-            focusedBorderColor = Color(0xFF5D5FEF),
+            focusedBorderColor = IconTint,
             unfocusedBorderColor = Color.LightGray,
-            cursorColor = Color(0xFF5D5FEF)
+            cursorColor = IconTint,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black
         )
     )
 }

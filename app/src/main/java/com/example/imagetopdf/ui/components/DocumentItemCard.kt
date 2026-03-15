@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.imagetopdf.R
+import com.example.imagetopdf.ui.theme.TextPrimary
+import com.example.imagetopdf.ui.theme.TextSecondary
 
 @Composable
 fun DocumentItemCard(
@@ -58,14 +60,14 @@ fun DocumentItemCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF333333),
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = date,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = TextSecondary
                 )
             }
         }

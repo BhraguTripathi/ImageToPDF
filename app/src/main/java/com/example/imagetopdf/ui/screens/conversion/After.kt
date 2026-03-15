@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -62,8 +63,14 @@ import coil.compose.AsyncImage
 import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.components.BottomBar
 import com.example.imagetopdf.ui.components.GradientBackground
+import com.example.imagetopdf.ui.theme.ActionButtonBg
 import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.ui.theme.DividerColor
+import com.example.imagetopdf.ui.theme.StarActiveColor
+import com.example.imagetopdf.ui.theme.StarInactiveColor
+import com.example.imagetopdf.ui.theme.SuccessGreen
+import com.example.imagetopdf.ui.theme.SuccessGreenBg
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
 import java.text.SimpleDateFormat
@@ -149,13 +156,13 @@ private fun SuccessHeader() {
                 .size(90.dp)
                 .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
-                .background(Color(0xFFDFF5E1)),
+                .background(SuccessGreenBg),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = "Success",
-                tint = Color(0xFF27AE60),
+                tint = SuccessGreen,
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -259,7 +266,7 @@ private fun PdfSummaryCard(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFFEEEEEE))
+            HorizontalDivider(color = DividerColor)
             Spacer(modifier = Modifier.height(16.dp))
 
             // ✅ Action Buttons (unchanged)
@@ -391,7 +398,7 @@ private fun PlaceholderLine(width: androidx.compose.ui.unit.Dp) {
 
 @Composable
 private fun ActionButton(modifier: Modifier = Modifier, icon: ImageVector, label: String, onClick: () -> Unit) {
-    Card(modifier = modifier.height(90.dp), onClick = onClick, colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F2FF)), shape = RoundedCornerShape(14.dp), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)) {
+    Card(modifier = modifier.height(90.dp), onClick = onClick, colors = CardDefaults.cardColors(containerColor = ActionButtonBg), shape = RoundedCornerShape(14.dp), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)) {
         Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Icon(imageVector = icon, contentDescription = label, tint = BrandPurple, modifier = Modifier.size(28.dp))
             Spacer(modifier = Modifier.height(6.dp))
@@ -405,7 +412,12 @@ private fun StarRating(currentRating: Int, onRatingChange: (Int) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         repeat(5) { index ->
             val starNumber = index + 1
-            Text(text = "★", fontSize = 36.sp, color = if (starNumber <= currentRating) Color(0xFFF2C94C) else Color(0xFFDDE3F0), modifier = Modifier.padding(2.dp).clickable { onRatingChange(starNumber) })
+            Icon(
+                imageVector = Icons.Filled.Star, // Assuming Star icon usage, though Text was used previously, I should probably stick to Text "★" if I can't find the Icon import. Wait, the previous code used Text.
+                contentDescription = null,
+                tint = if (starNumber <= currentRating) StarActiveColor else StarInactiveColor,
+                modifier = Modifier.padding(2.dp).size(36.dp).clickable { onRatingChange(starNumber) }
+            )
         }
     }
 }

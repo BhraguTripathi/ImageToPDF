@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.imagetopdf.ui.theme.TextPrimary
 
 @Composable
 fun SettingItemCard(
@@ -63,7 +63,7 @@ fun SettingItemCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFF333333),
+                    color = TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -75,18 +75,4 @@ fun SettingItemCard(
         }
     }
 
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun SettingItemCardPreview(){
-    MaterialTheme{
-        SettingItemCard(
-            title ="Profile",
-            icon = Icons.Filled.Person,
-            iconTint = Color(0xFF5D5FEF),
-            onClick = {}
-        )
-    }
 }
