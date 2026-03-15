@@ -20,6 +20,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.imagetopdf.ui.theme.IconTint
+import com.example.imagetopdf.ui.theme.TextPrimary
 
 @Composable
 fun OtpInputField(
@@ -51,7 +53,7 @@ fun OtpInputField(
                             .height(55.dp)
                             .border(
                                 width = if (isFocused) 2.dp else 1.dp,
-                                color = if (isFocused) Color(0xFF5D5FEF) else Color.LightGray,
+                                color = if (isFocused) IconTint else Color.LightGray,
                                 shape = RoundedCornerShape(12.dp)
                             )
                             .background(Color.White, RoundedCornerShape(12.dp)),
@@ -61,7 +63,7 @@ fun OtpInputField(
                             text = char,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF333333),
+                            color = TextPrimary,
                             textAlign = TextAlign.Center
                         )
                     }

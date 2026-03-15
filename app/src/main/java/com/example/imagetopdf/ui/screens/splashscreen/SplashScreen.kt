@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.ui.theme.TextPrimary
 import kotlinx.coroutines.delay
 
 @Composable
@@ -60,7 +61,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
                 text = "ImageToPDF",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF333333)
+                color = TextPrimary
             )
 
             Spacer(modifier = Modifier.height(24.dp))

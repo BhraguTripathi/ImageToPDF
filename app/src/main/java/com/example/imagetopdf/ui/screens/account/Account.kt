@@ -64,8 +64,9 @@ import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.SettingItemCard
 import com.example.imagetopdf.ui.components.TopBar
 import com.example.imagetopdf.ui.theme.AccentOrange
-import com.example.imagetopdf.ui.theme.BrandBlueLight
+
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.ui.theme.IconTint
 import com.example.imagetopdf.ui.theme.SignOutRed
 import com.example.imagetopdf.ui.theme.TextPrimary
 import io.github.jan.supabase.auth.auth
@@ -246,7 +247,7 @@ fun AccountScreen(
                     text = userName,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333)
+                    color = TextPrimary
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -290,7 +291,7 @@ fun AccountScreen(
                 SettingItemCard(
                     title = "Language",
                     icon = Icons.Filled.Language,
-                    iconTint = Color(0xFF5D5FEF),
+                    iconTint = IconTint,
                     onClick = {
                         navController.navigate(Screen.ComingSoon.createRoute("Language"))
                     }
@@ -299,7 +300,7 @@ fun AccountScreen(
                 SettingItemCard(
                     title = "Support",
                     icon = Icons.AutoMirrored.Filled.HelpOutline,
-                    iconTint = Color(0xFF5D5FEF),
+                    iconTint = IconTint,
                     onClick = {
                         navController.navigate(Screen.ComingSoon.createRoute("Support"))
                     }

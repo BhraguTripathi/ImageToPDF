@@ -239,7 +239,7 @@ private fun PdfSummaryCard(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFFEEEEEE))
+            HorizontalDivider(color = DividerColor)
             Spacer(modifier = Modifier.height(16.dp))
 
             // ✅ Vertical stats list
@@ -363,37 +363,6 @@ private fun StatRow(
             fontWeight = FontWeight.SemiBold
         )
     }
-}
-
-@Composable
-private fun ImagePreviewRow(imageUriString: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AsyncImage(
-            model = imageUriString,
-            contentDescription = "Preview",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(width = 110.dp, height = 75.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFFCDD4E8))
-        )
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            PlaceholderLine(width = 140.dp)
-            PlaceholderLine(width = 110.dp)
-            PlaceholderLine(width = 90.dp)
-        }
-    }
-}
-
-@Composable
-private fun PlaceholderLine(width: androidx.compose.ui.unit.Dp) {
-    Box(modifier = Modifier.size(width = width, height = 10.dp).clip(RoundedCornerShape(50)).background(Color(0xFFDDE3F0)))
 }
 
 @Composable

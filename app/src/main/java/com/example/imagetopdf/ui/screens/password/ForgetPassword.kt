@@ -142,7 +142,7 @@ fun ForgetPasswordScreen(
                     Text(text = "Back to ", color = Color.Gray)
                     Text(
                         text = "Log In",
-                        color = Color(0xFF5D5FEF),
+                        color = BrandPurple,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable { onBackLoginClick() }
                     )
