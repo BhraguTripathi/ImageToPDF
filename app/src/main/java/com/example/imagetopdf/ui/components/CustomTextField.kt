@@ -3,12 +3,10 @@ package com.example.imagetopdf.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -19,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.imagetopdf.ui.theme.IconTint
 
@@ -79,22 +76,4 @@ fun CustomTextField(
             unfocusedTextColor = Color.Black
         )
     )
-
-
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun CustomTextFieldPreview(){
-    MaterialTheme{
-        CustomTextField(
-            value = "",
-            onValueChange = {},
-            hint = "Hint",
-            icon = Icons.Filled.RemoveRedEye,
-            isPasswordField = true,
-            passwordVisible = false,
-            onVisibilityIconClick = {}
-        )
-    }
 }

@@ -84,7 +84,6 @@ fun MyDocumentScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
             TopBar(

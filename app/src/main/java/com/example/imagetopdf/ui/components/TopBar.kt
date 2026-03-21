@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.utils.LightStatusBarIcon
 
 @Composable
 fun TopBar(
@@ -38,10 +40,12 @@ fun TopBar(
     onButtonClicked: () -> Unit
 ){
 
+    LightStatusBarIcon()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(140.dp)
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(
                 brush = Brush.verticalGradient(
@@ -52,7 +56,8 @@ fun TopBar(
                 )
             )
             .padding(horizontal = 24.dp)
-            .padding(top = 25.dp)
+            .padding(top = 20.dp)
+            .statusBarsPadding()
     ){
         Row(
             modifier = Modifier.fillMaxWidth(),

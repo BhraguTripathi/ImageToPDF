@@ -100,7 +100,6 @@ fun BeforeConversionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
             TopBar(

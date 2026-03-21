@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.imagetopdf.ui.theme.BrandBlueLight
 import com.example.imagetopdf.ui.theme.BrandPurple
+import com.example.imagetopdf.utils.LightStatusBarIcon
 
 
 @Composable
@@ -27,6 +28,9 @@ fun ReusableHeader(
     icon: ImageVector,
     iconModifier: Modifier = Modifier
 ){
+
+    LightStatusBarIcon()
+
     Box(
         modifier = Modifier
             .fillMaxWidth(),
