@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import java.net.URL
 
@@ -17,32 +18,33 @@ data class UpdateInfo(
 
 object UpdateChecker {
 
-    // ✅ Replace with your actual raw GitHub URL
     private const val VERSION_JSON_URL =
         "https://raw.githubusercontent.com/BhraguTripathi/ImageToPDF/main/version.json"
 
+    // ✅ 5 second timeout — if GitHub doesn't respond, silently skip
     suspend fun checkForUpdate(currentVersion: String): UpdateInfo? {
         return withContext(Dispatchers.IO) {
-            try {
-                val json = URL(VERSION_JSON_URL).readText()
-                val obj = JSONObject(json)
-                val latest = obj.getString("latest_version")
-                val message = obj.getString("update_message")
-                val url = obj.getString("download_url")
+            withTimeoutOrNull(5000L) {
+                try {
+                    val json = URL(VERSION_JSON_URL).readText()
+                    val obj = JSONObject(json)
+                    val latest = obj.getString("latest_version")
+                    val message = obj.getString("update_message")
+                    val url = obj.getString("download_url")
 
-                if (isNewerVersion(latest, currentVersion)) {
-                    UpdateInfo(latest, message, url)
-                } else {
+                    if (isNewerVersion(latest, currentVersion)) {
+                        UpdateInfo(latest, message, url)
+                    } else {
+                        null
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                     null
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
             }
         }
     }
 
-    // Compares "1.2" vs "1.1" etc.
     private fun isNewerVersion(latest: String, current: String): Boolean {
         return try {
             val l = latest.split(".").map { it.toInt() }
@@ -54,10 +56,11 @@ object UpdateChecker {
                 if (lv < cv) return false
             }
             false
-        } catch (e: Exception) { false }
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    // Starts the download and returns downloadId
     fun startDownload(context: Context, downloadUrl: String): Long {
         val request = DownloadManager.Request(Uri.parse(downloadUrl)).apply {
             setTitle("ImageToPDF Update")
@@ -75,7 +78,6 @@ object UpdateChecker {
         return dm.enqueue(request)
     }
 
-    // Returns 0-100 progress, or -1 if failed
     fun getProgress(context: Context, downloadId: Long): Int {
         val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
@@ -111,7 +113,6 @@ object UpdateChecker {
         return false
     }
 
-    // Opens installer after download completes
     fun installApk(context: Context, downloadId: Long) {
         val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val uri = dm.getUriForDownloadedFile(downloadId)
