@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -55,6 +59,8 @@ fun SignupScreen(
 
     var passwordVisible by remember { mutableStateOf(false) }
 
+    var showSocialComingSoonDialog by remember { mutableStateOf(false) }
+
     val authState by viewModel.authState.collectAsState()
 
     /*If it succeeds, go to home*/
@@ -63,6 +69,39 @@ fun SignupScreen(
             onSignupClick()
             viewModel.resetState()
         }
+    }
+
+    //Coming Soon Dialog
+    if(showSocialComingSoonDialog){
+        AlertDialog(
+            onDismissRequest = { showSocialComingSoonDialog = false },
+            containerColor = Color.White,
+            title = {
+                Text(
+                    text = "🚀 Coming Soon!",
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = "Social login (Google, Apple, Microsoft) is not available yet.\n\nStay tuned — it's coming in the next update!",
+                    color = TextSecondary,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Start,
+                    lineHeight = 22.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showSocialComingSoonDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandPurple),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text(text = "Got it!", color = Color.White)
+                }
+            }
+        )
     }
 
     GradientBackground {
@@ -140,23 +179,32 @@ fun SignupScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick ={
-                        if(fullName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                            viewModel.signUp(fullName,email, password)
+                    onClick = {
+                        if (fullName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                            viewModel.signUp(fullName, email, password)
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(BrandPurple),
-                    shape = RoundedCornerShape(50)
+                    shape = RoundedCornerShape(50),
+                    // ---- Disable button while loading ----
+                    enabled = authState !is AuthState.Loading
                 ) {
-                    Text(
-                        text = "Sign Up",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Sign Up",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -208,15 +256,15 @@ fun SignupScreen(
                 ){
                     SocialIcon(
                         image = painterResource(R.drawable.googleicon),
-                        onClick = { }
+                        onClick = { showSocialComingSoonDialog = true }
                     )
                     SocialIcon(
                         image = painterResource(R.drawable.appleicon),
-                        onClick = { }
+                        onClick = { showSocialComingSoonDialog = true }
                     )
                     SocialIcon(
                         image = painterResource(R.drawable.microsofticon),
-                        onClick = { }
+                        onClick = { showSocialComingSoonDialog = true }
                     )
                 }
             }

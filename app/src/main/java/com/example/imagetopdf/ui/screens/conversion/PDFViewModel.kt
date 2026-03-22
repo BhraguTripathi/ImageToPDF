@@ -14,71 +14,103 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class PDFViewModel : ViewModel(){
+// ---- Conversion result sealed class ----
+sealed class ConversionState {
+    object Idle : ConversionState()
+    object Converting : ConversionState()
+    object Success : ConversionState()
+    data class Error(val message: String) : ConversionState()
+}
+
+class PDFViewModel : ViewModel() {
 
     private val _selectedImages = MutableStateFlow<List<Uri>>(emptyList())
     val selectedImages: StateFlow<List<Uri>> = _selectedImages
 
-    //Add Image
-    fun addImage(newImages: List<Uri>){
+    fun addImage(newImages: List<Uri>) {
         val currentList = _selectedImages.value.toMutableList()
         currentList.addAll(newImages)
         _selectedImages.value = currentList
     }
 
-    //Remove Image
-    fun removeImage(imageUri: Uri){
+    fun removeImage(imageUri: Uri) {
         val currentList = _selectedImages.value.toMutableList()
         currentList.remove(imageUri)
         _selectedImages.value = currentList
     }
 
-    //Clear Image
-    fun clearImages(){
+    fun clearImages() {
         _selectedImages.value = emptyList()
     }
 
     fun clearAll() {
         _selectedImages.value = emptyList()
         _pdfName.value = ""
+        _conversionState.value = ConversionState.Idle
+        _createPdfFile.value = null
     }
 
-    //Store PDF name
-    private val _pdfName = MutableStateFlow<String>("")
+    private val _pdfName = MutableStateFlow("")
     val pdfName: StateFlow<String> = _pdfName
 
-    fun setPdfName(name: String){
+    fun setPdfName(name: String) {
         _pdfName.value = name
     }
 
-    private val _isConverting = MutableStateFlow(false)
-    val isConverting: StateFlow<Boolean> = _isConverting
+    // ---- Replaced _isConverting with full ConversionState ----
+    private val _conversionState = MutableStateFlow<ConversionState>(ConversionState.Idle)
+    val conversionState: StateFlow<ConversionState> = _conversionState
+
+    // ---- Keep isConverting as a derived helper for the button enabled state ----
+    val isConverting: Boolean
+        get() = _conversionState.value is ConversionState.Converting
+
     private val _createPdfFile = MutableStateFlow<File?>(null)
     val createPdfFile: StateFlow<File?> = _createPdfFile
 
-    fun createPdf(context: Context, onSuccess: () -> Unit){
+    fun resetConversionState() {
+        _conversionState.value = ConversionState.Idle
+    }
+
+    fun createPdf(context: Context, onSuccess: () -> Unit) {
         val uris = _selectedImages.value
         val name = _pdfName.value
 
-        if (uris.isEmpty() || name.isEmpty()) return
+        if (uris.isEmpty()) {
+            _conversionState.value = ConversionState.Error("Please select at least one image.")
+            return
+        }
+        if (name.isBlank()) {
+            _conversionState.value = ConversionState.Error("Please enter a name for your PDF.")
+            return
+        }
 
         viewModelScope.launch {
-            _isConverting.value = true
+            _conversionState.value = ConversionState.Converting
 
-            val userId = SupabaseClient.client.auth.currentUserOrNull()?.id ?: "guest"
+            try {
+                val userId = SupabaseClient.client.auth.currentUserOrNull()?.id ?: "guest"
 
-            val resultFile = withContext(Dispatchers.IO){
-                PdfConverter.convertImageToPdf(context, uris, name,userId)
-            }
+                val resultFile = withContext(Dispatchers.IO) {
+                    PdfConverter.convertImageToPdf(context, uris, name, userId)
+                }
 
-            _isConverting.value = false
-            if (resultFile!= null){
-                _createPdfFile.value = resultFile
-                onSuccess()
-            } else {
-
+                if (resultFile != null) {
+                    _createPdfFile.value = resultFile
+                    _conversionState.value = ConversionState.Success
+                    onSuccess()
+                } else {
+                    // ---- Conversion returned null ----
+                    _conversionState.value = ConversionState.Error(
+                        "Failed to create PDF. Please try again."
+                    )
+                }
+            } catch (e: Exception) {
+                // ---- Unexpected crash during conversion ----
+                _conversionState.value = ConversionState.Error(
+                    "Something went wrong: ${e.localizedMessage ?: "Unknown error"}"
+                )
             }
         }
     }
-
 }

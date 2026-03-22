@@ -1,6 +1,7 @@
 package com.example.imagetopdf.ui.screens.conversion
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest // ✨ Needed for launch()
@@ -72,7 +73,23 @@ fun BeforeConversionScreen(
 
     val selectedImage by viewModel.selectedImages.collectAsState()
 
-    val isConverting by viewModel.isConverting.collectAsState()
+    val conversionState by viewModel.conversionState.collectAsState()
+
+    LaunchedEffect(conversionState) {
+        when (conversionState) {
+            is ConversionState.Error -> {
+                // Show the error message as a Toast
+                Toast.makeText(
+                    context,
+                    (conversionState as ConversionState.Error).message,
+                    Toast.LENGTH_LONG
+                ).show()
+                // Reset so the error doesn't re-trigger on recomposition
+                viewModel.resetConversionState()
+            }
+            else -> Unit
+        }
+    }
 
     BackHandler {
         viewModel.clearImages()
@@ -83,6 +100,7 @@ fun BeforeConversionScreen(
     LaunchedEffect(Unit) {
         viewModel.clearImages()
         viewModel.setPdfName("")
+        viewModel.resetConversionState()
     }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -217,9 +235,11 @@ fun BeforeConversionScreen(
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BrandPurple),
                     shape = RoundedCornerShape(50),
-                    enabled = selectedImage.isNotEmpty() && pdfName.isNotEmpty() && !isConverting
+                    enabled = selectedImage.isNotEmpty()
+                            && pdfName.isNotEmpty()
+                            && conversionState !is ConversionState.Converting
                 ) {
-                    if(isConverting){
+                    if(conversionState is ConversionState.Converting){
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
                         Text(
