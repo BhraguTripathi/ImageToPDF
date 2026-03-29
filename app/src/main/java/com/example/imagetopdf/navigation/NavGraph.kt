@@ -49,7 +49,7 @@ fun NavGraph(navController: NavHostController) {
                                 popUpTo(0) { inclusive = true }
                             }
                         } else {
-                            navController.navigate(Screen.Login.route) {
+                            navController.navigate(Screen.Signup.route) {
                                 popUpTo(0) { inclusive = true }
                             }
                         }

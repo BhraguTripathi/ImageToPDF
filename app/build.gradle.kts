@@ -88,6 +88,7 @@ dependencies {
 
     // 6. Supabase
     implementation(libs.supabase.gotrue)
+    implementation(libs.supabase.storage)
     implementation(libs.ktor.client.android)
 
     //Google-Auth

@@ -33,6 +33,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 supabase-gotrue = {module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "supabase"}
+supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabase" }
 ktor-client-android = {module = "io.ktor:ktor-client-android", version.ref = "ktor"}
 
 [plugins]

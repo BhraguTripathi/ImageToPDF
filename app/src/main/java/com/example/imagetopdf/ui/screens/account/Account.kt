@@ -1,7 +1,6 @@
 package com.example.imagetopdf.ui.screens.account
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -10,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.imagetopdf.R
 import com.example.imagetopdf.navigation.Screen
 import com.example.imagetopdf.network.SupabaseClient
@@ -69,65 +70,113 @@ import com.example.imagetopdf.ui.theme.SignOutRed
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 
 @Composable
-fun AccountScreen(
-    navController: NavController
-) {
+fun AccountScreen(navController: NavController) {
+
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val sharedPreference = remember {
-        context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-    }
-
-    var profilePicKey by remember { mutableStateOf("profile_pic_uri_default") }
-    var selectImageUri by remember { mutableStateOf<Uri?>(null) }
     var userName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
+    var avatarUrl by remember { mutableStateOf<String?>(null) }
+
     var showSignOutDialog by remember { mutableStateOf(false) }
-
-    // ---- NEW: track user info loading ----
     var isLoadingUser by remember { mutableStateOf(true) }
+    var isUploadingPhoto by remember { mutableStateOf(false) }
 
+    // ---- Load user info and profile picture ----
     LaunchedEffect(Unit) {
         isLoadingUser = true
-        val user = SupabaseClient.client.auth.currentUserOrNull()
-        val email = user?.email ?: "Unknown Email"
-        userEmail = email
+        try {
+            val user = SupabaseClient.client.auth.currentUserOrNull()
+            val email = user?.email ?: ""
+            userEmail = email
 
-        val rawName = user?.userMetadata?.get("full_name")?.jsonPrimitive?.content
-        userName = if (!rawName.isNullOrBlank() && rawName != "null") {
-            rawName
-        } else {
-            email.substringBefore("@").replaceFirstChar { it.uppercase() }
-        }
+            val rawName = user?.userMetadata?.get("full_name")?.jsonPrimitive?.content
+            userName = if (!rawName.isNullOrBlank() && rawName != "null") {
+                rawName
+            } else {
+                email.substringBefore("@").replaceFirstChar { it.uppercase() }
+            }
 
-        profilePicKey = "profile_pic_uri_${email}"
-        val savedUri = sharedPreference.getString(profilePicKey, null)
-        if (savedUri != null) {
-            selectImageUri = Uri.parse(savedUri)
+            // Load avatar — works for both Google and custom uploaded photos
+            // Google sign-in automatically sets avatar_url in metadata
+            // Custom uploads also save their URL to avatar_url
+            val metadataAvatar = user?.userMetadata?.get("avatar_url")?.jsonPrimitive?.content
+            if (!metadataAvatar.isNullOrBlank() && metadataAvatar != "null") {
+                avatarUrl = metadataAvatar
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         isLoadingUser = false
     }
 
+    // ---- Photo picker ----
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            try {
-                context.contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
+            scope.launch {
+                isUploadingPhoto = true
+                try {
+                    val userId = SupabaseClient.client.auth.currentUserOrNull()?.id
+                        ?: throw Exception("User not logged in")
+
+                    // Convert URI to ByteArray
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    val bytes = inputStream?.readBytes()
+                    inputStream?.close()
+
+                    if (bytes == null || bytes.isEmpty()) {
+                        throw Exception("Could not read image file")
+                    }
+
+                    // Upload to Supabase Storage bucket "avatars"
+                    // Path: userId/profile.jpg — overwrites previous photo automatically
+                    val filePath = "$userId/profile.jpg"
+                    SupabaseClient.client.storage
+                        .from("avatars")
+                        .upload(filePath, bytes) {
+                            upsert = true // Overwrite if exists
+                        }
+
+                    // Get the public URL of the uploaded image
+                    val publicUrl = SupabaseClient.client.storage
+                        .from("avatars")
+                        .publicUrl(filePath)
+
+                    // Save the URL to user metadata so it loads on next sign in
+                    SupabaseClient.client.auth.updateUser {
+                        data = buildJsonObject {
+                            put("avatar_url", publicUrl)
+                            // Preserve existing full_name
+                            put("full_name", userName)
+                        }
+                    }
+
+                    // Update UI immediately
+                    avatarUrl = publicUrl
+
+                    Toast.makeText(context, "Profile picture updated!", Toast.LENGTH_SHORT).show()
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(
+                        context,
+                        "Failed to upload photo: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                isUploadingPhoto = false
             }
-            selectImageUri = uri
-            sharedPreference.edit().putString(profilePicKey, uri.toString()).apply()
-            Toast.makeText(context, "Profile picture updated!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -185,7 +234,6 @@ fun AccountScreen(
                 onButtonClicked = {}
             )
 
-            // ---- Loading spinner while fetching user info ----
             if (isLoadingUser) {
                 Box(
                     modifier = Modifier
@@ -195,7 +243,7 @@ fun AccountScreen(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         CircularProgressIndicator(
                             color = BrandPurple,
@@ -210,7 +258,6 @@ fun AccountScreen(
                     }
                 }
             } else {
-                // ---- Main content shown after loading ----
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -220,10 +267,10 @@ fun AccountScreen(
                 ) {
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Profile Image
+                    // ---- Profile Picture ----
                     Box(
                         contentAlignment = Alignment.BottomEnd,
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.clickable(enabled = !isUploadingPhoto) {
                             photoPickerLauncher.launch(
                                 PickVisualMediaRequest(
                                     ActivityResultContracts.PickVisualMedia.ImageOnly
@@ -231,14 +278,23 @@ fun AccountScreen(
                             )
                         }
                     ) {
-                        if (selectImageUri != null) {
+                        // Profile image — shows Google photo, custom upload, or default
+                        if (avatarUrl != null) {
                             AsyncImage(
-                                model = selectImageUri,
+                                model = ImageRequest.Builder(context)
+                                    .data(avatarUrl)
+                                    .crossfade(true)
+                                    // Force reload if URL changes after upload
+                                    .memoryCacheKey(avatarUrl)
+                                    .diskCacheKey(avatarUrl)
+                                    .build(),
                                 contentDescription = "Profile Image",
                                 modifier = Modifier
                                     .size(100.dp)
                                     .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                placeholder = painterResource(R.drawable.user),
+                                error = painterResource(R.drawable.user)
                             )
                         } else {
                             Image(
@@ -251,6 +307,7 @@ fun AccountScreen(
                             )
                         }
 
+                        // Edit button or upload spinner
                         Box(
                             modifier = Modifier
                                 .size(30.dp)
@@ -259,12 +316,20 @@ fun AccountScreen(
                                 .padding(6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Edit,
-                                contentDescription = "Edit Profile Picture",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            if (isUploadingPhoto) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = "Edit Profile Picture",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
 
@@ -292,9 +357,7 @@ fun AccountScreen(
                         icon = Icons.Filled.Lock,
                         iconTint = AccentOrange,
                         onClick = {
-                            navController.navigate(
-                                Screen.ComingSoon.createRoute("Change Password")
-                            )
+                            navController.navigate(Screen.ComingSoon.createRoute("Change Password"))
                         }
                     )
 
@@ -303,9 +366,7 @@ fun AccountScreen(
                         icon = Icons.Filled.Notifications,
                         iconTint = BrandPurple,
                         onClick = {
-                            navController.navigate(
-                                Screen.ComingSoon.createRoute("Notifications")
-                            )
+                            navController.navigate(Screen.ComingSoon.createRoute("Notifications"))
                         }
                     )
 
@@ -314,9 +375,7 @@ fun AccountScreen(
                         icon = Icons.Filled.Edit,
                         iconTint = BrandPurple,
                         onClick = {
-                            navController.navigate(
-                                Screen.ComingSoon.createRoute("Appearance")
-                            )
+                            navController.navigate(Screen.ComingSoon.createRoute("Appearance"))
                         }
                     )
 
@@ -325,9 +384,7 @@ fun AccountScreen(
                         icon = Icons.Filled.Language,
                         iconTint = IconTint,
                         onClick = {
-                            navController.navigate(
-                                Screen.ComingSoon.createRoute("Language")
-                            )
+                            navController.navigate(Screen.ComingSoon.createRoute("Language"))
                         }
                     )
 
@@ -336,9 +393,7 @@ fun AccountScreen(
                         icon = Icons.AutoMirrored.Filled.HelpOutline,
                         iconTint = IconTint,
                         onClick = {
-                            navController.navigate(
-                                Screen.ComingSoon.createRoute("Support")
-                            )
+                            navController.navigate(Screen.ComingSoon.createRoute("Support"))
                         }
                     )
 
