@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,17 +30,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.imagetopdf.R
 import com.example.imagetopdf.ui.components.CustomTextField
+import com.example.imagetopdf.ui.components.GoogleSignInButton
 import com.example.imagetopdf.ui.components.GradientBackground
 import com.example.imagetopdf.ui.components.ReusableHeader
-import com.example.imagetopdf.ui.components.SocialIcon
 import com.example.imagetopdf.ui.theme.BrandPurple
 import com.example.imagetopdf.ui.theme.TextPrimary
 import com.example.imagetopdf.ui.theme.TextSecondary
@@ -51,75 +48,32 @@ fun SignupScreen(
     onSignupClick: () -> Unit,
     onLoginClick: () -> Unit,
     viewModel: AuthViewModel = viewModel()
-){
+) {
+    val context = LocalContext.current
 
     var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("")}
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
     var passwordVisible by remember { mutableStateOf(false) }
-
-    var showSocialComingSoonDialog by remember { mutableStateOf(false) }
 
     val authState by viewModel.authState.collectAsState()
 
-    /*If it succeeds, go to home*/
     LaunchedEffect(authState) {
-        if (authState is AuthState.Success){
+        if (authState is AuthState.Success) {
             onSignupClick()
             viewModel.resetState()
         }
     }
 
-    //Coming Soon Dialog
-    if(showSocialComingSoonDialog){
-        AlertDialog(
-            onDismissRequest = { showSocialComingSoonDialog = false },
-            containerColor = Color.White,
-            title = {
-                Text(
-                    text = "🚀 Coming Soon!",
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                )
-            },
-            text = {
-                Text(
-                    text = "Social login (Google, Apple, Microsoft) is not available yet.\n\nStay tuned — it's coming in the next update!",
-                    color = TextSecondary,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Start,
-                    lineHeight = 22.sp
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = { showSocialComingSoonDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = BrandPurple),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Text(text = "Got it!", color = Color.White)
-                }
-            }
-        )
-    }
-
     GradientBackground {
-
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            /*------Header-------*/
-            ReusableHeader(
-                icon = Icons.Filled.Person
-            )
+            ReusableHeader(icon = Icons.Filled.Person)
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            /*-------Main Area-------*/
 
             Column(
                 modifier = Modifier
@@ -128,7 +82,6 @@ fun SignupScreen(
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Text(
                     text = "Sign Up",
                     fontSize = 28.sp,
@@ -171,13 +124,21 @@ fun SignupScreen(
                     icon = Icons.Default.Lock,
                     isPasswordField = true,
                     passwordVisible = passwordVisible,
-                    onVisibilityIconClick = {
-                        passwordVisible = !passwordVisible
-                    }
+                    onVisibilityIconClick = { passwordVisible = !passwordVisible }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                if (authState is AuthState.Error) {
+                    Text(
+                        text = (authState as AuthState.Error).message,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
+                // Email sign-up button
                 Button(
                     onClick = {
                         if (fullName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
@@ -189,7 +150,6 @@ fun SignupScreen(
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(BrandPurple),
                     shape = RoundedCornerShape(50),
-                    // ---- Disable button while loading ----
                     enabled = authState !is AuthState.Loading
                 ) {
                     if (authState is AuthState.Loading) {
@@ -207,12 +167,12 @@ fun SignupScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier
-                        .padding(bottom = 32.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(text = "Already have an account? ", color = Color.Gray)
@@ -224,16 +184,13 @@ fun SignupScreen(
                     )
                 }
 
-                //Spacer(modifier = Modifier.height(24.dp))
-
+                // Divider
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     HorizontalDivider(
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         color = TextSecondary
                     )
                     Text(
@@ -242,31 +199,20 @@ fun SignupScreen(
                         color = TextSecondary
                     )
                     HorizontalDivider(
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         color = TextSecondary
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ){
-                    SocialIcon(
-                        image = painterResource(R.drawable.googleicon),
-                        onClick = { showSocialComingSoonDialog = true }
-                    )
-                    SocialIcon(
-                        image = painterResource(R.drawable.appleicon),
-                        onClick = { showSocialComingSoonDialog = true }
-                    )
-                    SocialIcon(
-                        image = painterResource(R.drawable.microsofticon),
-                        onClick = { showSocialComingSoonDialog = true }
-                    )
-                }
+                // Single Google sign-in button replacing the 3 social icons
+                GoogleSignInButton(
+                    onClick = { viewModel.signInWithGoogle(context) },
+                    isLoading = authState is AuthState.Loading
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

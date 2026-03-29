@@ -32,6 +32,7 @@ android {
         // 2. Create safe variables for Kotlin to use
         buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${properties.getProperty("SUPABASE_KEY")}\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${properties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""}\"")
     }
 
     buildTypes {
@@ -85,12 +86,12 @@ dependencies {
     // 4. ViewModel (For managing your app's data/state)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // 5. PDF Viewer (Optional - for viewing the PDFs you create)
-    // There isn't a native Compose PDF viewer yet, but this wraps the Android native one nicely.
-    // Use this later when you actually build the viewer screen.
-    // implementation("io.github.grizeldi:studypdf:1.0.0") // Example, or use AndroidPdfViewer
-
     // 6. Supabase
     implementation(libs.supabase.gotrue)
     implementation(libs.ktor.client.android)
+
+    //Google-Auth
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }
